@@ -1,0 +1,6 @@
+---
+title: "assignment06"
+author: "Benjamin Reese"
+format: html
+---
+
