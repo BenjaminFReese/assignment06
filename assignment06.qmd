@@ -80,5 +80,25 @@ Approximately, the highest level of accuracy that we can achieve is 98%, or $.98
 
 ## Exercise 05: The Marble Bag Problem
 
+```{r, warning=FALSE, message=FALSE}
+## Packages for Exercise05
+library(readr)
+library(tidymodels)
+library(tidyverse)
+## Loading in Data
+marbles <- read_csv("data/marbles.csv")
+```
 
+### 1. Dividing the Marbles Dataset into Training and Testing Data
+```{r}
+## Setting the seed
+set.seed(20200229)
+
+## Splitting
+split <- initial_split(data = marbles, prop = .8)
+
+## Training and Testing
+marbles_train <- training(x = split)
+marbles_test <- testing(x = split)
+```
 
