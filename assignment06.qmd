@@ -44,7 +44,7 @@ While all three of these equations tell us the error in predictions, they handle
 Below find my work for exercise 02. I start by replicating the table before creating the confusion matrix and calculating precision, sensitivity, and accuracy.
 
 ```{r}
-knitr::include_graphics("ex02.pdf")
+knitr::include_graphics("images/ex02.pdf")
 ```
 
 The key metrics are reported below:
@@ -58,7 +58,7 @@ The key metrics are reported below:
 Below find my work for exercise 03. Like exercise 02, I start by replicating the table, creating the confusion matrix, classifying each prediction, and then calculating accuracy and the misclassification rate. Accuracy is the proportion of correct predictions divided by the total, found by summing the main diagonal and dividing by the total. The misclassification rate is the proportion of incorrect predictions. We can find that by subtracting accuracy from 1, or $1-Accuracy$. The key results are reported below:
 
 ```{r}
-knitr::include_graphics("ex03.pdf")
+knitr::include_graphics("images/ex03.pdf")
 ```
 
 
@@ -76,3 +76,9 @@ For the second one, we can also just plug in values to our formula. $$P(value=0)
 
 $$(.99*.99) + (.01*.01)=0.9802 $$
 Approximately, the highest level of accuracy that we can achieve is 98%, or $.9802$. Unlike the previous problem, this is a high level of accuracy. We should (almost) always predict 0 because we will be correct 98% of the time. It follows then, that, if we predict $value=1$, we will be correct about 2% of the time.
+
+
+## Exercise 05: The Marble Bag Problem
+
+
+
