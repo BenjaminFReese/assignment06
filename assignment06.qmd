@@ -4,17 +4,17 @@ author: "Benjamin Reese"
 format: html
 ---
 
-## Exercise 01. Calculate MSE, RMSE, and MAE.
+## Exercise 01: Calculate MSE, RMSE, and MAE.
 
 The following work calculates the MSE, RMSE, and MAE for this table:
 
-true    predicted      
-------- ------  
-     1  2       
-     2  2       
-     3  4
-     4  8
-     5  4
+true_value    predicted_value      
+-------       ------  
+     1          2       
+     2          2       
+     3          4
+     4          8
+     5          4
 
 First, mean squared error, or MSE, is calculated by the equation: 
 $$\hat{MSE} = \frac{1}{n}\sum^{n}_{i=1}(Y_{i}-\hat{Y_{i}})^2$$
@@ -37,3 +37,13 @@ This formula is very similar to the MSE and RMSE formulas, except we are finding
 $$\hat{MAE}=7/5\approxeq1.4$$
 
 While all three of these equations tell us the error in predictions, they handle outliers differently. The mean squared error method, and by extension, the root mean square error method, is greatly influence by outliers because the differences are squared. MAE can be interpreted as the absolute distances between true and predicted values while mean square error calculates, by squaring, weights higher errors compared to lower errors. In sum, the RMSE error method is more influenced by outliers than mean absolute error.
+
+## Exercise 02: Creating Confusion Matrix
+
+Below find my work for exercise 02. I start by replicating the table before creating the confusion matrix and calculating precision, sensitivity, and accuracy.
+
+```{r}
+knitr::include_graphics("ex02.pdf")
+
+```
+
