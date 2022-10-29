@@ -67,12 +67,12 @@ knitr::include_graphics("ex03.pdf")
 
 ## Exercise 04: Guessing & Predicting
 
-The analytically solution to this problem can be found by multiple the probability that the true value is 0 by the probability that you guessed 0 added to the probability that the true value is 1 times the probability that you guess 1. More formally, $$P(value=0)*P(guess=0) + P(value=1)*P(guess=0)$$. For the first problem, we can simply plugin out probabilities and solve. $P(value=0) = .49$, $P(guess=0) = .49$, $P(value=1) = .51$, $P(guess=1) = .51$
+The analytically solution to this problem can be found by multiple the probability that the true value is 0 by the probability that you guessed 0 added to the probability that the true value is 1 times the probability that you guess 1. More formally, $$P(value=0)*P(guess=0) + P(value=1)*P(guess=0)$$. For the first problem, we can simply plugin out probabilities and solve. $$P(value=0) = .49,\  P(guess=0) = .49, \ P(value=1) = .51, \ P(guess=1) = .51$$
 
 $$(.49*.49) + (.51*.51)=0.5002 $$
 Approximately, the highest level of accuracy that we can achieve is 50%, or $0.5002$. This means it does not really matter what number that we guess because we have basically a 50% chance that we would be correct.
 
-For the second one, we can also just plug in values to our formula. $P(value=0) = .99$, $P(guess=0) = .99$, $P(value=1) = .01$, $P(guess=1) = .01$. Which gives us the following equation:
+For the second one, we can also just plug in values to our formula. $$P(value=0) = .99,\ P(guess=0) = .99,\  P(value=1) = .01, \ P(guess=1) = .01$$. Which gives us the following equation:
 
 $$(.99*.99) + (.01*.01)=0.9802 $$
 Approximately, the highest level of accuracy that we can achieve is 98%, or $.9802$. Unlike the previous problem, this is a high level of accuracy. We should (almost) always predict 0 because we will be correct 98% of the time. It follows then, that, if we predict $value=1$, we will be correct about 2% of the time.
