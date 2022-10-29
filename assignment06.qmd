@@ -4,3 +4,36 @@ author: "Benjamin Reese"
 format: html
 ---
 
+## Exercise 01. Calculate MSE, RMSE, and MAE.
+
+The following work calculates the MSE, RMSE, and MAE for this table:
+
+true    predicted      
+------- ------  
+     1  2       
+     2  2       
+     3  4
+     4  8
+     5  4
+
+First, mean squared error, or MSE, is calculated by the equation: 
+$$\hat{MSE} = \frac{1}{n}\sum^{n}_{i=1}(Y_{i}-\hat{Y_{i}})^2$$
+Starting with the first row, $(1-2)^2=1$, $(2-2)^2=0$, $(3-4)^2=1$, $(4-8)^2=16$, and $(5-4)^2=1$.
+Adding up all of the subtractions gives us, $1+0+1+16+1=19$. The final step is to divide by the sample size, for us that is $n=5$. So, $19/5$, or, approximately, $3.8$ is the mean squared error.
+
+$$\hat{MSE}=19/5\approxeq3.8$$
+
+The root mean square error, or RMSE, is calculated by taking the square root of the MSE. Here is the formula:
+$$\hat{RMSE} = \sqrt{\frac{1}{n}\sum^{n}_{i=1}(Y_{i}-\hat{Y_{i}})^2}$$
+
+Taking the square root of our MSE gives us, $\sqrt{3.8}\approxeq1.949359$. The Root Mean Square Error is $1.949359$.
+
+$$\hat{RMSE}=\sqrt{3.8}\approxeq1.949259$$
+
+Finally, the mean absolute error, or MAE, is determined by the formula:
+$$\hat{MAE} = \frac{1}{n}\sum^{n}_{i=1}|Y_{i}-\hat{Y_{i}}|^2$$
+This formula is very similar to the MSE and RMSE formulas, except we are finding the absolute values of our errors, and not the squared values. The MAE for the data in the table above are calculated as $|1-2|=1$, $|2-2|=0$, $|3-4|=1$, $|4-8|=4$, and $|5-4|=1$. Summing over all of these absolute values gives us: $1+0+1+4+1=7$. Now we just have to divide by our sample size, $n=5$, and we have our MAE. $7/5=1.4$. So our MAE is $7/5$, or, approximately, $1.4$.
+
+$$\hat{MAE}=7/5\approxeq1.4$$
+
+While all three of these equations tell us the error in predictions, they handle outliers differently. The mean squared error method, and by extension, the root mean square error method, is greatly influence by outliers because the differences are squared. MAE can be interpreted as the absolute distances between true and predicted values while mean square error calculates, by squaring, weights higher errors compared to lower errors. In sum, the RMSE error method is more influenced by outliers than mean absolute error.
