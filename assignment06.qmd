@@ -102,3 +102,61 @@ marbles_train <- training(x = split)
 marbles_test <- testing(x = split)
 ```
 
+### 2. Developing Mental Model for Predicting Marbles
+
+```{r}
+## Basic Barplot
+marbles_train %>%
+  ggplot(aes(x=size, fill=color)) +
+  geom_bar(color="black") +
+  scale_fill_manual(values=c("black", "white")) +
+  theme_minimal() +
+  labs(x="Marble Size", y="Number of Marbles", 
+       title = "The Size and Color of Marbles in A Bag",
+       subtitle = "Most Big Marbles are Black")
+
+## Counting Marbles By Size and Color
+marbles_train %>%
+  count(color, size, sort = TRUE)
+```
+
+As shown in the barplot and tibble above, more of the big marbles are black than white, and more of the small marbles are white than black. Therefore, if we reach into a bag and feel that the marble is big, we should guess that it is black, and, if the marble is small, we should guess that it is white. Since, though, there are relatively few small black marbles and relatively more big black marbles, we should be quite accurate predicting a marble is black given it is big. Further, the number of small black marbles is so few that we should be even more accurate when guessing that a small marble is white. 
+
+Analytically, we can think of this problem in terms of conditional probabilities. Conditional probability is defined by the formula:
+
+$$P(A|B) = P(A∩B) / P(B)$$
+
+We can think of this problem, and model our intuitive results, as wanting to know the conditional probability of a marble being black given it is big, and a marble being white given that it is small. If the conditional probability of a marble being white given it is small is larger than the conditional probability of a marble being black given it is small, then we should predict small marbles will be white. Similarly, if the conditional probability of a marble being black given it is big is larger than the conditional probability of a marble being black given it was small, then we should predict large marbles will be black. The code below uses the tibble above to construct the probabilities and shows that the expected conditional probabilities, derived from the figure above, are consistent with our intuitive predictions.
+
+```{r}
+## Probability of white AND small
+p_white_small <- 27/100
+
+## Probability of small
+p_small <- 37/100
+
+## Conditional Probability of white given small
+p_white_small/p_small
+
+## Probability of white AND big
+p_white_big <- 21/100
+
+## Probability of big
+p_big <- 63/100
+
+## Conditional Probability of white given big
+p_white_big/p_big
+
+## Probability of black AND small
+p_black_small <- 10/100
+
+## Conditional probability of black give small
+p_black_small/p_small
+
+## Probability of black AND big
+p_black_big <- 42/100
+
+## Conditional probability of black given big
+p_black_big/p_big
+```
+
