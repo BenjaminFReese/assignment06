@@ -77,6 +77,12 @@ For the second one, we can also just plug in values to our formula. $$P(value=0)
 $$(.99*.99) + (.01*.01)=0.9802 $$
 Approximately, the highest level of accuracy that we can achieve is 98%, or $.9802$. Unlike the previous problem, this is a high level of accuracy. We should (almost) always predict 0 because we will be correct 98% of the time. It follows then, that, if we predict $value=1$, we will be correct about 2% of the time.
 
+Context is important when comparing calculated accuracy in machine learning contexts because of relative costs. Depending on situational factors, true positives, true negatives, false positives, and false negatives can have varying levels of severity that must be considered by researchers, perhaps before even testing the model. If a medical test, such as a test for cancer, results in a false negative, than the patient could have diagnosed cancer that severely decreases their survivability. A false positive, on the other hand, may just lead to a few more tests. In that scenario, false negatives are far more consequential than false positives. In that case, we should probably be concerned about sensitivity over accuracy.
+
+There could be other instances, such as detecting nuclear radiation, where a false positive could result in mass evacuations, and the accompanying social hardship, where there was actually no dangerous levels of radiation. In that instance, we would be more interested in precision. 
+
+We have several metrics related to the quality of our tests, accuracy, precision, sensitivity, and specificity, and they are each qualitatively different and should be used as a metric of quality at the determination of the researcher based on expertise and substantive knowledge of relative costs.
+
 
 ## Exercise 05: The Marble Bag Problem
 
@@ -103,6 +109,8 @@ marbles_test <- testing(x = split)
 ```
 
 ### 2. Developing Mental Model for Predicting Marbles
+
+The chart, tibble, and probabilities below suggest that we should guess that a marble is black if it is big and white if it is small.
 
 ```{r}
 ## Basic Barplot
@@ -160,3 +168,4 @@ p_black_big <- 42/100
 p_black_big/p_big
 ```
 
+### 3. 
