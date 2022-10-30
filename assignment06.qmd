@@ -184,12 +184,12 @@ Below find the simple function that predicts the color of marble based on the si
 #' @examples color_predict(marbles_train$size)
 color_predict <- function(x) {
   x <- as_tibble(x) %>%
-   mutate(predictions = case_when(
+   mutate(yhat = case_when(
       x == "small" ~ "White",
       x == "big" ~ "Black"
     )
   )%>%
-    select(predictions)
+    select(yhat)
   return(x)
 }
 
@@ -197,3 +197,31 @@ color_predict <- function(x) {
 color_predict(marbles_test$size)
 
 ```
+
+### 4. 
+
+The code below creates a function to generate confusion matrices and return accuracy. It takes two arguments, actual observed values, and predicted values, such as those determined above by the color_predict() function. The accuracy is .76 and the confusion matrix, formatted as a table, can be seen below. 
+
+```{r}
+## Creating the predicted values
+yhat <- color_predict(marbles_test$size)
+
+#' Generating Confusion Matrix and Accuracy
+#'
+#' @param y A character vector of actual observed values to be compared to predicted values
+#' @param yhat A character vector of predicted values to be compared to the actually observed values
+#'
+#' @return This function returns two objects, first a basic confusion matrix formatted as a table object, and, second, a numeric value representing the accuracy as calculated by the sum of the table diagonal divided by the total
+#' 
+#'
+#' @examples confusion_matrix(y= marbles_test$color, yhat=yhat)
+confusion_matrix <- function(y, yhat) {
+  conf_matrix <- tibble(y, yhat)
+  conf_matrix <- table(conf_matrix)
+  Accuracy <- (sum(diag(conf_matrix)))/(nrow(yhat))
+  return(list(conf_matrix, Accuracy))
+}
+
+confusion_matrix(y= marbles_test$color, yhat=yhat)
+```
+
