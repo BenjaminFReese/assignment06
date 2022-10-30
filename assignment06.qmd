@@ -198,7 +198,7 @@ color_predict(marbles_test$size)
 
 ```
 
-### 4. 
+### 4. Confusion Matrix and Accuracy Function
 
 The code below creates a function to generate confusion matrices and return accuracy. It takes two arguments, actual observed values, and predicted values, such as those determined above by the color_predict() function. The accuracy is .76 and the confusion matrix, formatted as a table, can be seen below. 
 
@@ -216,12 +216,57 @@ yhat <- color_predict(marbles_test$size)
 #'
 #' @examples confusion_matrix(y= marbles_test$color, yhat=yhat)
 confusion_matrix <- function(y, yhat) {
-  conf_matrix <- tibble(y, yhat)
-  conf_matrix <- table(conf_matrix)
-  Accuracy <- (sum(diag(conf_matrix)))/(nrow(yhat))
-  return(list(conf_matrix, Accuracy))
+  conf_tib <- tibble(y, yhat) ## putting variables together
+  conf_matrix <- table(conf_tib) ## creating table
+  Accuracy <- (sum(diag(conf_matrix)))/(nrow(conf_tib)) ## summing and dividing by total
+  return(list(conf_matrix, Accuracy)) ## output
 }
 
 confusion_matrix(y= marbles_test$color, yhat=yhat)
+```
+
+## 5. Estimating Regression Tree/CART Model
+
+The code below runs a decision tree/cart model, and includes decision tree output. The results are analyzed in *6*.
+
+```{r, warning=FALSE, message=FALSE}
+## Creating the Recipe
+cart_rec <- recipe(formula = color ~ ., data = marbles_train)
+
+## Creating the CART Model
+cart_mod <-
+  decision_tree() %>%
+  set_engine(engine = "rpart") %>%
+  set_mode(mode = "classification")
+
+## Workflow
+cart_wf <- workflow() %>%
+  add_recipe(cart_rec) %>%
+  add_model(cart_mod)
+
+## Fitting the Model
+cart_fit <- cart_wf %>%
+  fit(data = marbles_train)
+
+## Creating a Decision Tree Visualization
+rpart.plot::rpart.plot(x = cart_fit$fit$fit$fit)
+
+## Selecting the Predictions
+predictions <- bind_cols(
+  marbles_test,
+  predict(object = cart_fit, new_data = marbles_test),
+  predict(object = cart_fit, new_data = marbles_test, type = "prob")
+) %>%
+  mutate(color=as.factor(color))
+
+## The Predictions
+select(predictions, color, starts_with(".pred"))
+
+## Confusion matrix
+conf_mat(data = predictions, truth = color, estimate = .pred_class)
+
+## Accuracy
+accuracy(data = predictions, truth = color, estimate = .pred_class)
+
 ```
 
