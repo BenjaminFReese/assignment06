@@ -168,4 +168,32 @@ p_black_big <- 42/100
 p_black_big/p_big
 ```
 
-### 3. 
+### 3. Creating Simple Function to Predict Marble Color
+
+Below find the simple function that predicts the color of marble based on the size. It is a very simple function that predicts marbles will be small if they are white and big if they are black.
+
+```{r}
+
+#' Simple Marble Color Predictor
+#'
+#' @param x a numeric vector of sizes of marbles 
+#'
+#' @return a character vector of predictions of marble color based on their size
+#'
+#'
+#' @examples color_predict(marbles_train$size)
+color_predict <- function(x) {
+  x <- as_tibble(x) %>%
+   mutate(predictions = case_when(
+      x == "small" ~ "White",
+      x == "big" ~ "Black"
+    )
+  )%>%
+    select(predictions)
+  return(x)
+}
+
+## Applying to Testing Data
+color_predict(marbles_test$size)
+
+```
