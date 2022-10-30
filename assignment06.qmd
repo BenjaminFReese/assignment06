@@ -134,7 +134,11 @@ Analytically, we can think of this problem in terms of conditional probabilities
 
 $$P(A|B) = P(A∩B) / P(B)$$
 
-We can think of this problem, and model our intuitive results, as wanting to know the conditional probability of a marble being black given it is big, and a marble being white given that it is small. If the conditional probability of a marble being white given it is small is larger than the conditional probability of a marble being black given it is small, then we should predict small marbles will be white. Similarly, if the conditional probability of a marble being black given it is big is larger than the conditional probability of a marble being black given it was small, then we should predict large marbles will be black. The code below uses the tibble above to construct the probabilities and shows that the expected conditional probabilities, derived from the figure above, are consistent with our intuitive predictions.
+We can think of this problem, and model our intuitive results, as wanting to know the conditional probability of a marble being black given it is big, and a marble being white given that it is small. If the conditional probability of a marble being white given it is small is larger than the conditional probability of a marble being black given it is small, then we should predict small marbles will be white. Similarly, if the conditional probability of a marble being black given it is big is larger than the conditional probability of a marble being black given it was small, then we should predict large marbles will be black. The code below uses the tibble above to construct the probabilities and shows that the expected conditional probabilities, derived from the figure above, are consistent with our intuitive predictions. The following code evaluates permutations of the following probability formula:
+
+$$P(W|S) = P(W∩S) / P(S)$$
+
+Where $P(W|S)$ is the probability that a marble is white given that it is small - what we are trying to find -, $P(W∩S)$ is the probability that a marble is white AND small, and $P(S)$ is the probability that a marble is small. I evaluate this for white given big to see which probability is larger, this becomes my intuitive prediction for guessing the marble color based on size. I then repeat this for black marbles.
 
 ```{r}
 ## Probability of white AND small
