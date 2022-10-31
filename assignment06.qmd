@@ -32,7 +32,7 @@ Taking the square root of our MSE gives us, $\sqrt{4.4}\approxeq2.097618$. The R
 $$\hat{RMSE}=\sqrt{4.4}\approxeq2.097618$$
 
 Finally, the mean absolute error, or MAE, is determined by the formula:
-$$\hat{MAE} = \frac{1}{n}\sum^{n}_{i=1}|Y_{i}-\hat{Y_{i}}|^2$$
+$$\hat{MAE} = \frac{1}{n}\sum^{n}_{i=1}|Y_{i}-\hat{Y_{i}}|$$
 This formula is very similar to the MSE and RMSE formulas, except we are finding the absolute values of our errors, and not the squared values. The MAE for the data in the table above are calculated as $|1-2|=1$, $|2-2|=0$, $|3-1|=2$, $|4-8|=4$, and $|5-4|=1$. Summing over all of these absolute values gives us: $1+0+2+4+1=8$. Now we just have to divide by our sample size, $n=5$, and we have our MAE. $8/5=1.6$. So our MAE is $8/5$, or, $1.6$.
 
 $$\hat{MAE}=\frac{8}{5}=1.6$$
