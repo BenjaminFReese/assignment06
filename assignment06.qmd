@@ -13,29 +13,29 @@ true_value    predicted_value
 -------       ------  
      1          2       
      2          2       
-     3          4
+     3          1
      4          8
      5          4
 
 First, mean squared error, or MSE, is calculated by the equation: 
 $$\hat{MSE} = \frac{1}{n}\sum^{n}_{i=1}(Y_{i}-\hat{Y_{i}})^2$$
-Starting with the first row, $(1-2)^2=1$, $(2-2)^2=0$, $(3-4)^2=1$, $(4-8)^2=16$, and $(5-4)^2=1$.
-Adding up all of the subtractions gives us, $1+0+1+16+1=19$. The final step is to divide by the sample size, for us that is $n=5$. So, $19/5$, or, approximately, $3.8$ is the mean squared error.
+Starting with the first row, $(1-2)^2=1$, $(2-2)^2=0$, $(3-1)^2=4$, $(4-8)^2=16$, and $(5-4)^2=1$.
+Adding up all of the subtractions gives us, $1+0+4+16+1=22$. The final step is to divide by the sample size, for us that is $n=5$. So, $22/5$, or, approximately, $4.4$ is the mean squared error.
 
-$$\hat{MSE}=\frac{19}{5}\approxeq3.8$$
+$$\hat{MSE}=\frac{22}{5}\approxeq4.4$$
 
 The root mean square error, or RMSE, is calculated by taking the square root of the MSE. Here is the formula:
 $$\hat{RMSE} = \sqrt{\frac{1}{n}\sum^{n}_{i=1}(Y_{i}-\hat{Y_{i}})^2}$$
 
-Taking the square root of our MSE gives us, $\sqrt{3.8}\approxeq1.949359$. The Root Mean Square Error is $1.949359$.
+Taking the square root of our MSE gives us, $\sqrt{4.4}\approxeq2.097618$. The Root Mean Square Error is $1.949359$.
 
-$$\hat{RMSE}=\sqrt{3.8}\approxeq1.949259$$
+$$\hat{RMSE}=\sqrt{4.4}\approxeq2.097618$$
 
 Finally, the mean absolute error, or MAE, is determined by the formula:
 $$\hat{MAE} = \frac{1}{n}\sum^{n}_{i=1}|Y_{i}-\hat{Y_{i}}|^2$$
-This formula is very similar to the MSE and RMSE formulas, except we are finding the absolute values of our errors, and not the squared values. The MAE for the data in the table above are calculated as $|1-2|=1$, $|2-2|=0$, $|3-4|=1$, $|4-8|=4$, and $|5-4|=1$. Summing over all of these absolute values gives us: $1+0+1+4+1=7$. Now we just have to divide by our sample size, $n=5$, and we have our MAE. $7/5=1.4$. So our MAE is $7/5$, or, approximately, $1.4$.
+This formula is very similar to the MSE and RMSE formulas, except we are finding the absolute values of our errors, and not the squared values. The MAE for the data in the table above are calculated as $|1-2|=1$, $|2-2|=0$, $|3-1|=2$, $|4-8|=4$, and $|5-4|=1$. Summing over all of these absolute values gives us: $1+0+2+4+1=8$. Now we just have to divide by our sample size, $n=5$, and we have our MAE. $8/5=1.6$. So our MAE is $8/5$, or, approximately, $1.6$.
 
-$$\hat{MAE}=\frac{7}{5}\approxeq1.4$$
+$$\hat{MAE}=\frac{8}{5}\approxeq1.6$$
 
 While all three of these equations tell us the error in predictions, they handle outliers differently. The mean squared error method, and by extension, the root mean square error method, is greatly influence by outliers because the differences are squared. MAE can be interpreted as the absolute distances between true and predicted values while mean square error calculates, by squaring, weights higher errors compared to lower errors. In sum, the RMSE error method is more influenced by outliers than mean absolute error.
 
@@ -43,7 +43,7 @@ While all three of these equations tell us the error in predictions, they handle
 
 Below find my work for exercise 02. I start by replicating the table before creating the confusion matrix and calculating precision, sensitivity, and accuracy.
 
-```{r}
+```{r, out.width="90%", out.height="90%"}
 knitr::include_graphics("images/ex02.pdf")
 ```
 
@@ -55,9 +55,9 @@ The key metrics are reported below:
 
 ## Exercise 03: Creating A Multiclass Classification Confusion Matrix
 
-Below find my work for exercise 03. Like exercise 02, I start by replicating the table, creating the confusion matrix, classifying each prediction, and then calculating accuracy and the misclassification rate. Accuracy is the proportion of correct predictions divided by the total, found by summing the main diagonal and dividing by the total. The misclassification rate is the proportion of incorrect predictions. We can find that by subtracting accuracy from 1, or $1-Accuracy$. The key results are reported below:
+Below, find my work for exercise 03. Like exercise 02, I start by replicating the table, creating the confusion matrix, classifying each prediction, and then calculating accuracy and the misclassification rate. Accuracy is the proportion of correct predictions divided by the total, found by summing the main diagonal and dividing by the total. The misclassification rate is the proportion of incorrect predictions. We can find that by subtracting accuracy from 1, or $1-Accuracy$. The key results are reported below:
 
-```{r}
+```{r, out.width="90%", out.height="90%"}
 knitr::include_graphics("images/ex03.pdf")
 ```
 
@@ -67,21 +67,17 @@ knitr::include_graphics("images/ex03.pdf")
 
 ## Exercise 04: Guessing & Predicting
 
-The analytically solution to this problem can be found by multiple the probability that the true value is 0 by the probability that you guessed 0 added to the probability that the true value is 1 times the probability that you guess 1. More formally, $$P(value=0)*P(guess=0) + P(value=1)*P(guess=0)$$. For the first problem, we can simply plugin out probabilities and solve. $$P(value=0) = .49,\  P(guess=0) = .49, \ P(value=1) = .51, \ P(guess=1) = .51$$
+In this case, the highest accuracy we can achieve would be 51%, if we were to choose 1 every time. We could only achieve 49% accuracy if we were to choose 0 every time, and thus we should predict 1 for the highest possible accuracy.
 
-$$(.49*.49) + (.51*.51)=0.5002 $$
-Approximately, the highest level of accuracy that we can achieve is 50%, or $0.5002$. This means it does not really matter what number that we guess because we have basically a 50% chance that we would be correct.
+In the second case, the highest accuracy we can achieve would be 99%, if we were to choose 0 every time. We could only achieve .01% accuracy if we were to choose 1 every time, and thus we should predict 0 for the highest possible accuracy.
 
-For the second one, we can also just plug in values to our formula. $$P(value=0) = .99,\ P(guess=0) = .99,\  P(value=1) = .01, \ P(guess=1) = .01$$. Which gives us the following equation:
+If we could only pick one number to guess every time, than our accuracy is limited by the proportion of actual observations that are that number.
 
-$$(.99*.99) + (.01*.01)=0.9802 $$
-Approximately, the highest level of accuracy that we can achieve is 98%, or $.9802$. Unlike the previous problem, this is a high level of accuracy. We should (almost) always predict 0 because we will be correct 98% of the time. It follows then, that, if we predict $value=1$, we will be correct about 2% of the time.
+Context is important when comparing calculated accuracy in machine learning contexts because of relative costs. Depending on situational factors, true positives, true negatives, false positives, and false negatives can have varying levels of severity. These concerns must be considered by researchers, perhaps before even estimating a model. If a medical test, such as a test for cancer, results in a false negative, than the patient could have undiagnosed cancer that severely decreases their survivability. A false positive, on the other hand, may just lead to a few more tests. In that scenario, false negatives are far more consequential than false positives. In that case, we should probably be concerned about sensitivity over accuracy.
 
-Context is important when comparing calculated accuracy in machine learning contexts because of relative costs. Depending on situational factors, true positives, true negatives, false positives, and false negatives can have varying levels of severity that must be considered by researchers, perhaps before even testing the model. If a medical test, such as a test for cancer, results in a false negative, than the patient could have diagnosed cancer that severely decreases their survivability. A false positive, on the other hand, may just lead to a few more tests. In that scenario, false negatives are far more consequential than false positives. In that case, we should probably be concerned about sensitivity over accuracy.
+There could be other instances, such as detecting radiation, where a false positive could result in mass evacuations, and the accompanying social hardship, where there was actually no dangerous levels of radiation. In that instance, we would be more interested in precision. 
 
-There could be other instances, such as detecting nuclear radiation, where a false positive could result in mass evacuations, and the accompanying social hardship, where there was actually no dangerous levels of radiation. In that instance, we would be more interested in precision. 
-
-We have several metrics related to the quality of our tests, accuracy, precision, sensitivity, and specificity, and they are each qualitatively different and should be used as a metric of quality at the determination of the researcher based on expertise and substantive knowledge of relative costs.
+We have several metrics related to the quality of our tests - accuracy, precision, sensitivity, and specificity - and they are each qualitatively different and should be used as a metric of quality at the determination of the researcher based on expertise and substantive knowledge of relative costs.
 
 
 ## Exercise 05: The Marble Bag Problem
@@ -134,11 +130,11 @@ Analytically, we can think of this problem in terms of conditional probabilities
 
 $$P(A|B) = P(A∩B) / P(B)$$
 
-We can think of this problem, and model our intuitive results, as wanting to know the conditional probability of a marble being black given it is big, and a marble being white given that it is small. If the conditional probability of a marble being white given it is small is larger than the conditional probability of a marble being black given it is small, then we should predict small marbles will be white. Similarly, if the conditional probability of a marble being black given it is big is larger than the conditional probability of a marble being black given it was small, then we should predict large marbles will be black. The code below uses the tibble above to construct the probabilities and shows that the expected conditional probabilities, derived from the figure above, are consistent with our intuitive predictions. The following code evaluates permutations of the following probability formula:
+We can think of this problem, and model our intuitive results, as wanting to know the conditional probability of a marble being black given it is big, and a marble being white given that it is small. If the conditional probability of a marble being white given it is small is larger than the conditional probability of a marble being black given it is small, then we should predict small marbles will be white. Similarly, if the conditional probability of a marble being black given it is big is larger than the conditional probability of a marble being black given it is small, then we should predict large marbles will be black. The code below uses the tibble above to construct probabilities and shows that the expected conditional probabilities are consistent with our intuitive predictions. The following code evaluates permutations of the following probability formula:
 
 $$P(W|S) = P(W∩S) / P(S)$$
 
-Where $P(W|S)$ is the probability that a marble is white given that it is small - what we are trying to find -, $P(W∩S)$ is the probability that a marble is white AND small, and $P(S)$ is the probability that a marble is small. I evaluate this for white given big to see which probability is larger, this becomes my intuitive prediction for guessing the marble color based on size. I then repeat this for black marbles.
+Where $P(W|S)$ is the probability that a marble is white given that it is small - what we are trying to find -, $P(W∩S)$ is the probability that a marble is white AND small, and $P(S)$ is the probability that a marble is small. I evaluate this for white given big to see which probability is larger and repeat for all size and color combinations.
 
 ```{r}
 ## Probability of white AND small
@@ -174,7 +170,7 @@ p_black_big/p_big
 
 ### 3. Creating Simple Function to Predict Marble Color
 
-Below find the simple function that predicts the color of marble based on the size. It is a very simple function that predicts marbles will be small if they are white and big if they are black.
+Below find the simple function that predicts the color of a marble based on the size. It is a very simple function that predicts marbles will be small if they are white and big if they are black.
 
 ```{r}
 
@@ -204,7 +200,7 @@ color_predict(marbles_test$size)
 
 ### 4. Confusion Matrix and Accuracy Function
 
-The code below creates a function to generate confusion matrices and return accuracy. It takes two arguments, actual observed values, and predicted values, such as those determined above by the color_predict() function. The accuracy is .76 and the confusion matrix, formatted as a table, can be seen below. 
+The code below creates a function to generate confusion matrices and calculates accuracy. It takes two arguments, actual observed values, and predicted values, such as those determined above by the color_predict() function. The accuracy is .76 and the confusion matrix, formatted as a table, can be seen below. 
 
 ```{r}
 ## Creating the predicted values
@@ -276,4 +272,4 @@ accuracy(data = predictions, truth = color, estimate = .pred_class)
 
 ## 6. 
 
-The results are the CART model are consistent with my intuitive/mental model from part 2. The accuracy is the same as well. The intuition that larger marbles will most likely be black and smaller marbles will most likely be white is supported by the CART model results; marble size is the best, and in this case basically only, predictor of marble color. The predictions in both part 2 and part 5 are the same. The reason that the predictions are the same is that size is the best available predictor that we have of marble color. So we could identify through plots that size can help to predict color, and we confirmed this through our machine learning model. In this simple case, we can see through plots and simple counts that size is such a strong predictor of color, and our CART model confirms our intuitive model. For more complex applications, the CART model should become a far better method of generating predictions than simply looking at plots and counts.
+The results of the CART model are consistent with my intuitive/mental model from part 2. The intuition that larger marbles will most likely be black and smaller marbles will most likely be white is supported by the CART model results. The predictions in both part 2 and part 5 are the same. The reason that the predictions are the same is that size is the best available, and only, predictor that we have of marble color. We identified through a plot and count that size can help to predict color, and we confirmed this through our machine learning model. In this simple case, we can use plots and simple counts to create predictions. For more complex applications, the CART model should become a far better method of generating predictions than simply looking at plots and counts.
