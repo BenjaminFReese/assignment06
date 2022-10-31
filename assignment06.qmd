@@ -20,9 +20,9 @@ true_value    predicted_value
 First, mean squared error, or MSE, is calculated by the equation: 
 $$\hat{MSE} = \frac{1}{n}\sum^{n}_{i=1}(Y_{i}-\hat{Y_{i}})^2$$
 Starting with the first row, $(1-2)^2=1$, $(2-2)^2=0$, $(3-1)^2=4$, $(4-8)^2=16$, and $(5-4)^2=1$.
-Adding up all of the subtractions gives us, $1+0+4+16+1=22$. The final step is to divide by the sample size, for us that is $n=5$. So, $22/5$, or, approximately, $4.4$ is the mean squared error.
+Adding up all of the subtractions gives us, $1+0+4+16+1=22$. The final step is to divide by the sample size, for us that is $n=5$. So, $22/5$, or, $4.4$ is the mean squared error.
 
-$$\hat{MSE}=\frac{22}{5}\approxeq4.4$$
+$$\hat{MSE}=\frac{22}{5}=4.4$$
 
 The root mean square error, or RMSE, is calculated by taking the square root of the MSE. Here is the formula:
 $$\hat{RMSE} = \sqrt{\frac{1}{n}\sum^{n}_{i=1}(Y_{i}-\hat{Y_{i}})^2}$$
@@ -33,11 +33,11 @@ $$\hat{RMSE}=\sqrt{4.4}\approxeq2.097618$$
 
 Finally, the mean absolute error, or MAE, is determined by the formula:
 $$\hat{MAE} = \frac{1}{n}\sum^{n}_{i=1}|Y_{i}-\hat{Y_{i}}|^2$$
-This formula is very similar to the MSE and RMSE formulas, except we are finding the absolute values of our errors, and not the squared values. The MAE for the data in the table above are calculated as $|1-2|=1$, $|2-2|=0$, $|3-1|=2$, $|4-8|=4$, and $|5-4|=1$. Summing over all of these absolute values gives us: $1+0+2+4+1=8$. Now we just have to divide by our sample size, $n=5$, and we have our MAE. $8/5=1.6$. So our MAE is $8/5$, or, approximately, $1.6$.
+This formula is very similar to the MSE and RMSE formulas, except we are finding the absolute values of our errors, and not the squared values. The MAE for the data in the table above are calculated as $|1-2|=1$, $|2-2|=0$, $|3-1|=2$, $|4-8|=4$, and $|5-4|=1$. Summing over all of these absolute values gives us: $1+0+2+4+1=8$. Now we just have to divide by our sample size, $n=5$, and we have our MAE. $8/5=1.6$. So our MAE is $8/5$, or, $1.6$.
 
-$$\hat{MAE}=\frac{8}{5}\approxeq1.6$$
+$$\hat{MAE}=\frac{8}{5}=1.6$$
 
-While all three of these equations tell us the error in predictions, they handle outliers differently. The mean squared error method, and by extension, the root mean square error method, is greatly influence by outliers because the differences are squared. MAE can be interpreted as the absolute distances between true and predicted values while mean square error calculates, by squaring, weights higher errors compared to lower errors. In sum, the RMSE error method is more influenced by outliers than mean absolute error.
+While all three of these equations tell us the error in predictions, they handle outliers differently. The mean squared error method, and by extension, the root mean square error method, is greatly influenced by outliers because the differences are squared. MAE can be interpreted as the absolute distances between true and predicted values while mean square error calculates by squaring, weighting higher errors compared to lower errors. In sum, the RMSE error method is more influenced by outliers than mean absolute error.
 
 ## Exercise 02: Creating A Binary Classification Confusion Matrix
 
@@ -71,9 +71,9 @@ In this case, the highest accuracy we can achieve would be 51%, if we were to ch
 
 In the second case, the highest accuracy we can achieve would be 99%, if we were to choose 0 every time. We could only achieve .01% accuracy if we were to choose 1 every time, and thus we should predict 0 for the highest possible accuracy.
 
-If we could only pick one number to guess every time, than our accuracy is limited by the proportion of actual observations that are that number.
+If we could only pick one number to guess every time, then our accuracy is limited by the proportion of actual observations that are that number.
 
-Context is important when comparing calculated accuracy in machine learning contexts because of relative costs. Depending on situational factors, true positives, true negatives, false positives, and false negatives can have varying levels of severity. These concerns must be considered by researchers, perhaps before even estimating a model. If a medical test, such as a test for cancer, results in a false negative, than the patient could have undiagnosed cancer that severely decreases their survivability. A false positive, on the other hand, may just lead to a few more tests. In that scenario, false negatives are far more consequential than false positives. In that case, we should probably be concerned about sensitivity over accuracy.
+Context is important when comparing calculated accuracy in machine learning contexts because of relative costs. Depending on situational factors, true positives, true negatives, false positives, and false negatives can have varying levels of severity. These concerns must be considered by researchers, perhaps before even estimating a model. If a medical test, such as a test for cancer, results in a false negative, then the patient could have undiagnosed cancer that severely decreases their survivability. A false positive, on the other hand, may just lead to a few more tests. In that scenario, false negatives are far more consequential than false positives. In that case, we should probably be concerned about sensitivity over accuracy.
 
 There could be other instances, such as detecting radiation, where a false positive could result in mass evacuations, and the accompanying social hardship, where there was actually no dangerous levels of radiation. In that instance, we would be more interested in precision. 
 
@@ -272,4 +272,4 @@ accuracy(data = predictions, truth = color, estimate = .pred_class)
 
 ## 6. 
 
-The results of the CART model are consistent with my intuitive/mental model from part 2. The intuition that larger marbles will most likely be black and smaller marbles will most likely be white is supported by the CART model results. The predictions in both part 2 and part 5 are the same. The reason that the predictions are the same is that size is the best available, and only, predictor that we have of marble color. We identified through a plot and count that size can help to predict color, and we confirmed this through our machine learning model. In this simple case, we can use plots and simple counts to create predictions. For more complex applications, the CART model should become a far better method of generating predictions than simply looking at plots and counts.
+The results of the CART model are consistent with my intuitive/mental model from part 2. The intuition that larger marbles will most likely be black and smaller marbles will most likely be white is supported by the CART model results. The predictions in both part 2 and part 5 are the same. The reason that the predictions are the same is that size is the only, predictor that we have of marble color. We identified through a plot and count that size can help to predict color, and we confirmed this through our machine learning model. In this simple case, we can use plots and simple counts to create predictions. For more complex applications, the CART model should become a far better method of generating predictions than simply looking at plots and counts.
