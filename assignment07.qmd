@@ -111,3 +111,46 @@ cart_fit <- cart_wf %>%
   fit(data = restaurant_train)
 ```
 
+## 2.
+
+The code below evaluates the model by generating a confusion matrix and calculates precision and sensitivey. A written description of the quality of the model is also included. 
+
+```{r}
+## Selecting the Predictions
+predictions <- bind_cols(
+  restaurant_test,
+  predict(object = cart_fit, new_data = restaurant_test),
+  predict(object = cart_fit, new_data = restaurant_test, type = "prob")
+) %>%
+  mutate(color=as.factor(grade))
+
+## The Predictions
+select(predictions, grade, starts_with(".pred"))
+```
+
+### a. 
+
+```{r}
+## Confusion matrix
+conf_mat(data = predictions, truth = grade, estimate = .pred_class)
+```
+
+### b.
+
+```{r}
+## Precision
+precision(data = predictions, truth = grade, estimate = .pred_class)
+
+## Recall/Sensitivity
+recall(data = predictions, truth = grade, estimate = .pred_class)
+
+```
+
+### c.
+
+The model's precision, or how often the classifier is correct when it predicts an event, is very high, .998. This high level of precision means that the model is very good at predicting an event when there is an event. In this case, our models is highly precise when predicting a restaurant has an A rating when it actually has an A rating. The model's sensitivity, or how often the classifier is correct when there is an event is not as high as its precision, meaning that there are many restaurants that have an A rating, but the model is predicting that they do not have an A rating. Overall, the quality of the model depends on its intended use and the relative costs associated with its use. If the model predicts an A rating, then we can be pretty sure the result is not a false positive, but we will see many false negatives. 
+
+## 3. 
+
+Using a *KNN*, or K-nearest neighbors, algorithm instead of the decision tree algorithm may improve the quality of the model. Instead of dividing the data into two or more sets as the decision tree model does, a *KNN* algorithm stores all available cases and classifies new cases by taking a majority vote of its k neighbors. This majority vote may prove more accurate than the binary dividing of the decision tree model.
+
