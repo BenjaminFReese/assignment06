@@ -154,3 +154,21 @@ The model's precision, or how often the classifier is correct when it predicts a
 
 Using a *KNN*, or K-nearest neighbors, algorithm instead of the decision tree algorithm may improve the quality of the model. Instead of dividing the data into two or more sets as the decision tree model does, a *KNN* algorithm stores all available cases and classifies new cases by taking a majority vote of its k neighbors. This majority vote may prove more accurate than the binary dividing of the decision tree model.
 
+## 4.
+
+```{r}
+library(vip)
+
+cart_fit %>%
+  extract_fit_parsnip() %>%
+  vip(num_features = 10)
+
+```
+
+Variable, or feature, importance in decision tree models is calculated by finding the decrease in the Gini impurity weighted by the probability of reaching that node. Node probability is the proportion of samples that reach a node out of the total samples. The most important variables in a decision tree model are the variables associated with the most Gini impurity being eliminated at each branch of the decision tree. In other words, the variable with the highest value of the decrease in impurity, weighted by the probability of the sample making it to a node, is the most important feature.
+
+In the model above, the most important feature is the inspection type. Location, defined by the Census tract the restaurant is located in was the second most important variable. These two are followed by a series of variables relation to the types of violations associated with a restaurant, the type of cuisine, and the date of the inspection. The most important feature, inspection type, is a categorical variable largely divided between initial and re-inspections. It is unsurprising that the most important predictor of a rating is the type of inspection because the rating is a direct result of an inspection, and the exact circumstances of an inspection surely dictate the ensuing ratings. It is also possible that restaurants fix violations and receive A ratings on subsequent visits and re-inspections, meaning re-inspection will predict A ratings.
+
+## 5. 
+
+Restaurants that receive low ratings will want to correct their violations and try to raise their grade, but this requires an initial inspection. If restaurants correct after a rating, then the focus should be on casting a large net and reaching as many restaurants as possible, even foregoing continued visits at established businesses, in order to encourage restaurants to improve their health safety conditions. Also, location is one of the most important predictors of grade as well, so spending time inspecting restaurants in locations that are associated with low health inspection ratings will be an optimal use of health department resources.
