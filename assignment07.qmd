@@ -69,7 +69,7 @@ write_csv(sampled_df, "restaurant_grades.csv")
 
 In this exercise, I split `sampled_df`, the restaurant data, into training and testing datasets, create a recipe, and estimate a decision tree model.
 
-### a.
+### a. Setting the Seed and Splitting the Dataset
 
 ```{r}
 ## Setting Seed
@@ -83,7 +83,7 @@ restaurant_train <- training(split)
 restaurant_test <- testing(split)
 ```
 
-### b.
+### b. Creating the Recipe
 
 ```{r}
 ## Creating the Recipe
@@ -92,7 +92,7 @@ restaurant_rec <-
   themis::step_downsample(grade)
 ```
 
-### c. 
+### c. Code for the Decision Tree
 
 ```{r}
 ## Creating the CART Model
@@ -115,6 +115,8 @@ cart_fit <- cart_wf %>%
 
 The code below evaluates the model by generating a confusion matrix and calculates precision and sensitivey. A written description of the quality of the model is also included. 
 
+## Creating predictions tibble
+
 ```{r}
 ## Selecting the Predictions
 predictions <- bind_cols(
@@ -128,14 +130,14 @@ predictions <- bind_cols(
 select(predictions, grade, starts_with(".pred"))
 ```
 
-### a. 
+### a. Confusion Matrix
 
 ```{r}
 ## Confusion matrix
 conf_mat(data = predictions, truth = grade, estimate = .pred_class)
 ```
 
-### b.
+### b. Calculating Precision & Recall
 
 ```{r}
 ## Precision
@@ -154,7 +156,7 @@ The model's precision, or how often the classifier is correct when it predicts a
 
 Using a *KNN*, or K-nearest neighbors, algorithm instead of the decision tree algorithm may improve the quality of the model. Instead of dividing the data into two or more sets as the decision tree model does, a *KNN* algorithm stores all available cases and classifies new cases by taking a majority vote of its k neighbors. This majority vote may prove more accurate than the binary dividing of the decision tree model.
 
-## 4.
+## 4. Plot for Variable Importance
 
 ```{r}
 library(vip)
@@ -172,3 +174,32 @@ In the model above, the most important feature is the inspection type. Location,
 ## 5. 
 
 Restaurants that receive low ratings will want to correct their violations and try to raise their grade, but this requires an initial inspection. If restaurants correct after a rating, then the focus should be on casting a large net and reaching as many restaurants as possible, even foregoing continued visits at established businesses, in order to encourage restaurants to improve their health safety conditions. Also, location is one of the most important predictors of grade as well, so spending time inspecting restaurants in locations that are associated with low health inspection ratings will be an optimal use of health department resources.
+
+# Exercise 2
+
+## Running Code From Assignment
+
+```{r}
+Chicago_modeling <- Chicago %>%
+slice(1:5678)
+
+Chicago_implementation <- Chicago %>%
+slice(5679:5698) %>%
+select(-ridership)
+```
+
+## 1. Converting Date into Useable Variable
+
+```{r}
+## Loading Lubridate
+library(lubridate)
+
+## Converting Dates
+Chicago_modeling <- Chicago_modeling %>%
+  mutate(weekday = weekdays(date), 
+         month = month(date, label = TRUE),
+         yearday = yday(date)
+  )
+
+```
+
