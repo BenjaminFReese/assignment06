@@ -203,3 +203,19 @@ Chicago_modeling <- Chicago_modeling %>%
 
 ```
 
+## 2. Setting up the testing enviroment
+
+## a. Setting the Seed and Splitting Modeling Data into Training & Testing
+
+```{r}
+## Setting seed
+set.seed(0211101)
+
+## Splitting
+split <- initial_split(data = Chicago_modeling)
+
+## Training and Testing
+chicago_train <- training(x = split)
+chicago_test <- testing(x = split)
+```
+
