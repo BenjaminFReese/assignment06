@@ -199,7 +199,8 @@ Chicago_modeling <- Chicago_modeling %>%
   mutate(weekday = wday(date, label = TRUE), 
          month = month(date, label = TRUE),
          yearday = yday(date)
-  )
+  ) %>%
+  janitor::clean_names()
 
 ```
 
@@ -225,13 +226,13 @@ chicago_test <- testing(x = split)
 ## Counting Daily Ridership
 chicago_train %>%
   group_by(weekday) %>%
-  summarise(avg_daily_ridership = mean(Clark_Lake))
+  summarise(avg_daily_ridership = mean(clark_lake))
 
 
 ## Daily Average Ridership Plot
 chicago_train %>%
   group_by(weekday) %>%
-  summarise(avg_daily_ridership = mean(Clark_Lake)) %>%
+  summarise(avg_daily_ridership = mean(clark_lake)) %>%
   ggplot(aes(x=weekday, y=avg_daily_ridership, fill=weekday)) +
   geom_col() +
   theme_minimal() +
@@ -242,36 +243,36 @@ chicago_train %>%
 ## Ridership During Games
 chicago_train %>%
   mutate(game = case_when(
-    Blackhawks_Home == 1 ~ "Blackhawks",
-    Bulls_Home == 1 ~ "Bulls",
-    Bears_Home == 1 ~ "Bears",
-    WhiteSox_Home == 1 ~ "White Sox",
-    Cubs_Home == 1 ~ "Cubs",
-    Blackhawks_Home == 0 ~ "Away",
-    Bulls_Home == 0 ~ "Away",
-    Bears_Home == 0 ~ "Away",
-    WhiteSox_Home == 0 ~ "Away",
-    Cubs_Home == 0 ~ "Away",
+    blackhawks_home == 1 ~ "Blackhawks",
+    bulls_home == 1 ~ "Bulls",
+    bears_home == 1 ~ "Bears",
+    white_sox_home == 1 ~ "White Sox",
+    cubs_home == 1 ~ "Cubs",
+    blackhawks_home == 0 ~ "Away",
+    bulls_home == 0 ~ "Away",
+    bears_home == 0 ~ "Away",
+    white_sox_home == 0 ~ "Away",
+    cubs_home == 0 ~ "Away",
   )) %>%
   group_by(game) %>%
-  summarise(avg_gametime_ridership = mean(Clark_Lake))
+  summarise(avg_gametime_ridership = mean(clark_lake))
 
 ## Ridership During Games Plot
 chicago_train %>%
   mutate(game = case_when(
-    Blackhawks_Home == 1 ~ "Blackhawks",
-    Bulls_Home == 1 ~ "Bulls",
-    Bears_Home == 1 ~ "Bears",
-    WhiteSox_Home == 1 ~ "White Sox",
-    Cubs_Home == 1 ~ "Cubs",
-    Blackhawks_Home == 0 ~ "Away",
-    Bulls_Home == 0 ~ "Away",
-    Bears_Home == 0 ~ "Away",
-    WhiteSox_Home == 0 ~ "Away",
-    Cubs_Home == 0 ~ "Away",
+    blackhawks_home == 1 ~ "Blackhawks",
+    bulls_home == 1 ~ "Bulls",
+    bears_home == 1 ~ "Bears",
+    white_sox_home == 1 ~ "White Sox",
+    cubs_home == 1 ~ "Cubs",
+    blackhawks_home == 0 ~ "Away",
+    bulls_home == 0 ~ "Away",
+    bears_home == 0 ~ "Away",
+    white_sox_home == 0 ~ "Away",
+    cubs_home == 0 ~ "Away",
   )) %>%
   group_by(game) %>%
-  summarise(avg_gametime_ridership = mean(Clark_Lake)) %>%
+  summarise(avg_gametime_ridership = mean(clark_lake)) %>%
   ggplot(aes(x=game, y=avg_gametime_ridership, fill=game)) +
   geom_col() +
   theme_minimal() +
@@ -291,7 +292,7 @@ chicago_train %>%
     weather_storm == 0 ~ "Sunny",
   )) %>%
   group_by(weather) %>%
-  summarise(weather_ridership = mean(Clark_Lake))
+  summarise(weather_ridership = mean(clark_lake))
 
 chicago_train %>%
   mutate(weather = case_when(
@@ -305,7 +306,7 @@ chicago_train %>%
     weather_storm == 0 ~ "Sunny",
   )) %>%
   group_by(weather) %>%
-  summarise(weather_ridership = mean(Clark_Lake)) %>%
+  summarise(weather_ridership = mean(clark_lake)) %>%
   ggplot(aes(x=weather, y=weather_ridership, fill=weather_ridership)) + 
   geom_col() +
   theme_minimal() +
@@ -316,7 +317,7 @@ chicago_train %>%
 
 ## Relationship Between Weather and Ridership
 chicago_train %>%
-  ggplot(aes(x=temp, y=Clark_Lake)) +
+  ggplot(aes(x=temp, y=clark_lake)) +
   geom_point(alpha=.3) +
   geom_smooth() +
   theme_minimal() +
@@ -338,17 +339,36 @@ folds <- vfold_cv(data = chicago_train, v = 10)
 ### 1. Creating Recipe
 
 ```{r}
-## Cleaning Names for Recipe
-chicago_train <- 
-  janitor::clean_names(chicago_train)
-
 ## Recipe
 chi_rec <- 
   recipe(clark_lake ~ ., data = chicago_train) %>%
   step_dummy(all_nominal_predictors()) %>% # dummy encode categorical (nominal) predictors
-  step_normalize(all_predictors()) %>%   # center and scale all predictors
-  step_nzv(all_predictors()) %>%   # drop near zero variance for all predictors
+  step_normalize(all_numeric_predictors()) %>%   # center and scale all predictors
+  step_nzv(all_numeric_predictors()) %>%   # drop near zero variance for all predictors
   step_holiday(date)
+
 ```
 
+
+### 2. Defining Model Specifications
+
+```{r}
+## Creating the Tuning rid
+lasso_grid <- grid_regular(penalty(), levels = 10)
+
+## Specifying the model
+lasso_mod <- linear_reg(penalty = tune(), mixture = 1) %>%
+  set_engine("glmnet") %>%
+  set_mode(mode = "regression")
+
+## Creating the workflow
+lasso_wf <- workflow() %>%
+  add_recipe(chi_rec) %>%
+  add_model(lasso_mod) 
+
+## Hyperparameter Tuning and Cross Validation
+lasso_cv <- lasso_wf %>%
+  tune_grid(resamples = folds, grid = lasso_grid)
+
+```
 
