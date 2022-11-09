@@ -276,8 +276,7 @@ chicago_train %>%
   geom_col() +
   theme_minimal() +
   labs(title = "Gametime Ridership for Chicago's Clark-Lake Station", 
-       x = "Team", y = "Average Ridership", fill="Team",
-       subtitle = "Ridership Dips When Bears Have Home Game")
+       x = "Team", y = "Average Ridership", fill="Team")
 
 ## Ridership During Inclement Weather
 chicago_train %>%
@@ -323,14 +322,15 @@ chicago_train %>%
   theme_minimal() +
   labs(title = "Relationship Between Temperature and Ridership at Clark-Lake Station", 
        x = "Temperature (F)", y = "Ridership")
-  
 
 ```
+
+
 ## c. Setting up v-fold cross validation
 
 ```{r}
 ## Setting up folds
-folds <- vfold_cv(data = data_train, v = 10)
+folds <- vfold_cv(data = chicago_train, v = 10)
 ```
 
 
