@@ -225,19 +225,23 @@ chicago_test <- testing(x = split)
 ## Counting Daily Ridership
 chicago_train %>%
   group_by(weekday) %>%
-  summarise(avg_daily_ridership = mean(ridership))
+  summarise(avg_daily_ridership = mean(Clark_Lake))
+
 
 ## Daily Average Ridership Plot
 chicago_train %>%
   group_by(weekday) %>%
-  summarise(avg_daily_ridership = mean(ridership)) %>%
+  summarise(avg_daily_ridership = mean(Clark_Lake)) %>%
   ggplot(aes(x=weekday, y=avg_daily_ridership, fill=weekday)) +
   geom_col() +
   theme_minimal() +
-  labs(title = "Daily Ridership on Chicago's L Trains", 
+  labs(title = "Daily Ridership for Chicago's Clark-Lake Station", 
        x = "Weekday", y = "Average Daily Ridership", fill="Weekday",
        subtitle = "Ridership Peaks During Working Week, Drops off During Weekend")
 
+## Do One for Games
+
+## Do One for Weather
 
 ```
 
