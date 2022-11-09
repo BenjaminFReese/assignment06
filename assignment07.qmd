@@ -113,9 +113,9 @@ cart_fit <- cart_wf %>%
 
 ## 2.
 
-The code below evaluates the model by generating a confusion matrix and calculates precision and sensitivey. A written description of the quality of the model is also included. 
+The code below evaluates the model by generating a confusion matrix and calculates precision and sensitivity. A written description of the quality of the model is also included. 
 
-## Creating predictions tibble
+### Creating predictions tibble
 
 ```{r}
 ## Selecting the Predictions
@@ -205,7 +205,7 @@ Chicago_modeling <- Chicago_modeling %>%
 
 ## 2. Setting up the testing enviroment
 
-## a. Setting the Seed and Splitting Modeling Data into Training & Testing
+### a. Setting the Seed and Splitting Modeling Data into Training & Testing
 
 ```{r}
 ## Setting seed
@@ -219,7 +219,7 @@ chicago_train <- training(x = split)
 chicago_test <- testing(x = split)
 ```
 
-## b. Exploratory Data Analysis
+### b. Exploratory Data Analysis
 
 ```{r, warning=FALSE, message=FALSE}
 ## Counting Daily Ridership
@@ -326,12 +326,29 @@ chicago_train %>%
 ```
 
 
-## c. Setting up v-fold cross validation
+### c. Setting up v-fold cross validation
 
 ```{r}
 ## Setting up folds
 folds <- vfold_cv(data = chicago_train, v = 10)
 ```
 
+## 3. Testing Different Approaches
+
+### 1. Creating Recipe
+
+```{r}
+## Cleaning Names for Recipe
+chicago_train <- 
+  janitor::clean_names(chicago_train)
+
+## Recipe
+chi_rec <- 
+  recipe(clark_lake ~ ., data = chicago_train) %>%
+  step_dummy(all_nominal_predictors()) %>% # dummy encode categorical (nominal) predictors
+  step_normalize(all_predictors()) %>%   # center and scale all predictors
+  step_nzv(all_predictors()) %>%   # drop near zero variance for all predictors
+  step_holiday(date)
+```
 
 
