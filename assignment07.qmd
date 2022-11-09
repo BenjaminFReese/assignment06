@@ -209,7 +209,7 @@ Chicago_modeling <- Chicago_modeling %>%
 
 ```{r}
 ## Setting seed
-set.seed(0211101)
+set.seed(20211101)
 
 ## Splitting
 split <- initial_split(data = Chicago_modeling)
@@ -221,7 +221,7 @@ chicago_test <- testing(x = split)
 
 ## b. Exploratory Data Analysis
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 ## Counting Daily Ridership
 chicago_train %>%
   group_by(weekday) %>%
@@ -239,10 +239,98 @@ chicago_train %>%
        x = "Weekday", y = "Average Daily Ridership", fill="Weekday",
        subtitle = "Ridership Peaks During Working Week, Drops off During Weekend")
 
-## Do One for Games
+## Ridership During Games
+chicago_train %>%
+  mutate(game = case_when(
+    Blackhawks_Home == 1 ~ "Blackhawks",
+    Bulls_Home == 1 ~ "Bulls",
+    Bears_Home == 1 ~ "Bears",
+    WhiteSox_Home == 1 ~ "White Sox",
+    Cubs_Home == 1 ~ "Cubs",
+    Blackhawks_Home == 0 ~ "Away",
+    Bulls_Home == 0 ~ "Away",
+    Bears_Home == 0 ~ "Away",
+    WhiteSox_Home == 0 ~ "Away",
+    Cubs_Home == 0 ~ "Away",
+  )) %>%
+  group_by(game) %>%
+  summarise(avg_gametime_ridership = mean(Clark_Lake))
 
-## Do One for Weather
+## Ridership During Games Plot
+chicago_train %>%
+  mutate(game = case_when(
+    Blackhawks_Home == 1 ~ "Blackhawks",
+    Bulls_Home == 1 ~ "Bulls",
+    Bears_Home == 1 ~ "Bears",
+    WhiteSox_Home == 1 ~ "White Sox",
+    Cubs_Home == 1 ~ "Cubs",
+    Blackhawks_Home == 0 ~ "Away",
+    Bulls_Home == 0 ~ "Away",
+    Bears_Home == 0 ~ "Away",
+    WhiteSox_Home == 0 ~ "Away",
+    Cubs_Home == 0 ~ "Away",
+  )) %>%
+  group_by(game) %>%
+  summarise(avg_gametime_ridership = mean(Clark_Lake)) %>%
+  ggplot(aes(x=game, y=avg_gametime_ridership, fill=game)) +
+  geom_col() +
+  theme_minimal() +
+  labs(title = "Gametime Ridership for Chicago's Clark-Lake Station", 
+       x = "Team", y = "Average Ridership", fill="Team",
+       subtitle = "Ridership Dips When Bears Have Home Game")
 
+## Ridership During Inclement Weather
+chicago_train %>%
+  mutate(weather = case_when(
+    weather_rain > 0 ~ "Rain",
+    weather_snow > 0 ~ "Snow",
+    weather_cloud > 0 ~ "Cloud",
+    weather_storm > 0 ~ "Storm",
+    weather_rain == 0 ~ "Sunny",
+    weather_snow == 0 ~ "Sunny",
+    weather_cloud == 0 ~ "Sunny",
+    weather_storm == 0 ~ "Sunny",
+  )) %>%
+  group_by(weather) %>%
+  summarise(weather_ridership = mean(Clark_Lake))
+
+chicago_train %>%
+  mutate(weather = case_when(
+    weather_rain > 0 ~ "Rain",
+    weather_snow > 0 ~ "Snow",
+    weather_cloud > 0 ~ "Cloud",
+    weather_storm > 0 ~ "Storm",
+    weather_rain == 0 ~ "Sunny",
+    weather_snow == 0 ~ "Sunny",
+    weather_cloud == 0 ~ "Sunny",
+    weather_storm == 0 ~ "Sunny",
+  )) %>%
+  group_by(weather) %>%
+  summarise(weather_ridership = mean(Clark_Lake)) %>%
+  ggplot(aes(x=weather, y=weather_ridership, fill=weather_ridership)) + 
+  geom_col() +
+  theme_minimal() +
+  labs(title = "Inclement Weather Ridership for Chicago's Clark-Lake Station", 
+       x = "Weather", y = "Average Ridership",
+       subtitle = "Weather is Not A Strong Predictor of Ridership") +
+  theme(legend.position="none")
+
+## Relationship Between Weather and Ridership
+chicago_train %>%
+  ggplot(aes(x=temp, y=Clark_Lake)) +
+  geom_point(alpha=.3) +
+  geom_smooth() +
+  theme_minimal() +
+  labs(title = "Relationship Between Temperature and Ridership at Clark-Lake Station", 
+       x = "Temperature (F)", y = "Ridership")
+  
+
+```
+## c. Setting up v-fold cross validation
+
+```{r}
+## Setting up folds
+folds <- vfold_cv(data = data_train, v = 10)
 ```
 
 
