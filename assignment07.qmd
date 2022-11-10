@@ -504,7 +504,7 @@ collect_metrics(rf_fit, summarize = FALSE) %>%
 ```
 
 
-## 4. Calculating Out-of-Sample Error Prediction
+## 4. Calculating Out-of-Sample Error
 
 The random forest model has both the lowest averaged mean absolute error and the lowest average root mean square error. The out-of-sample error rate is the RMSE of the tested model 1.984769.
 
@@ -529,6 +529,24 @@ predictions <-
 rmse(data = predictions, truth = ridership, estimate = .pred)
 
 
+```
+
+## 5. Implementing the Final Model
+
+```{r}
+## Cleaning and Adding the weekday variables to the implementation data
+Chicago_implementation <- Chicago_implementation %>%
+  mutate(weekday = wday(date, label = TRUE), 
+         month = month(date, label = TRUE),
+         yearday = yday(date)
+  ) %>%
+  janitor::clean_names()
+
+## Predictions for Implementation Data
+predict(object = rf_final, new_data = Chicago_implementation)
+
+## Calculating RMSE for the Implementation Data
+rmse(data = predictions, truth = ridership, estimate = .pred)
 ```
 
 
