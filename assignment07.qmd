@@ -4,7 +4,7 @@ author: "Benjamin Reese"
 format: pdf
 self-contained: true
 ---
-
+## Use ridership not ridership
 # Exercise 01
 
 ## Runing Code to Create Dataset
@@ -226,13 +226,13 @@ chicago_test <- testing(x = split)
 ## Counting Daily Ridership
 chicago_train %>%
   group_by(weekday) %>%
-  summarise(avg_daily_ridership = mean(clark_lake))
+  summarise(avg_daily_ridership = mean(ridership))
 
 
 ## Daily Average Ridership Plot
 chicago_train %>%
   group_by(weekday) %>%
-  summarise(avg_daily_ridership = mean(clark_lake)) %>%
+  summarise(avg_daily_ridership = mean(ridership)) %>%
   ggplot(aes(x=weekday, y=avg_daily_ridership, fill=weekday)) +
   geom_col() +
   theme_minimal() +
@@ -240,22 +240,6 @@ chicago_train %>%
        x = "Weekday", y = "Average Daily Ridership", fill="Weekday",
        subtitle = "Ridership Peaks During Working Week, Drops off During Weekend")
 
-## Ridership During Games
-chicago_train %>%
-  mutate(game = case_when(
-    blackhawks_home == 1 ~ "Blackhawks",
-    bulls_home == 1 ~ "Bulls",
-    bears_home == 1 ~ "Bears",
-    white_sox_home == 1 ~ "White Sox",
-    cubs_home == 1 ~ "Cubs",
-    blackhawks_home == 0 ~ "Away",
-    bulls_home == 0 ~ "Away",
-    bears_home == 0 ~ "Away",
-    white_sox_home == 0 ~ "Away",
-    cubs_home == 0 ~ "Away",
-  )) %>%
-  group_by(game) %>%
-  summarise(avg_gametime_ridership = mean(clark_lake))
 
 ## Ridership During Games Plot
 chicago_train %>%
@@ -272,12 +256,30 @@ chicago_train %>%
     cubs_home == 0 ~ "Away",
   )) %>%
   group_by(game) %>%
-  summarise(avg_gametime_ridership = mean(clark_lake)) %>%
+  summarise(avg_gametime_ridership = mean(ridership)) %>%
   ggplot(aes(x=game, y=avg_gametime_ridership, fill=game)) +
   geom_col() +
   theme_minimal() +
   labs(title = "Gametime Ridership for Chicago's Clark-Lake Station", 
        x = "Team", y = "Average Ridership", fill="Team")
+
+## Ridership During Bears Games
+chicago_train %>%
+  mutate(game = case_when(
+    blackhawks_home == 1 ~ "Blackhawks",
+    bulls_home == 1 ~ "Bulls",
+    bears_home == 1 ~ "Bears",
+    white_sox_home == 1 ~ "White Sox",
+    cubs_home == 1 ~ "Cubs",
+    blackhawks_home == 0 ~ "Away",
+    bulls_home == 0 ~ "Away",
+    bears_home == 0 ~ "Away",
+    white_sox_home == 0 ~ "Away",
+    cubs_home == 0 ~ "Away",
+  )) %>%
+  filter(weekday=="Sun") %>%
+  group_by(bears_home) %>%
+  summarise(avg_gametime_ridership = mean(ridership))
 
 ## Ridership During Inclement Weather
 chicago_train %>%
@@ -292,7 +294,7 @@ chicago_train %>%
     weather_storm == 0 ~ "Sunny",
   )) %>%
   group_by(weather) %>%
-  summarise(weather_ridership = mean(clark_lake))
+  summarise(weather_ridership = mean(ridership))
 
 chicago_train %>%
   mutate(weather = case_when(
@@ -306,7 +308,7 @@ chicago_train %>%
     weather_storm == 0 ~ "Sunny",
   )) %>%
   group_by(weather) %>%
-  summarise(weather_ridership = mean(clark_lake)) %>%
+  summarise(weather_ridership = mean(ridership)) %>%
   ggplot(aes(x=weather, y=weather_ridership, fill=weather_ridership)) + 
   geom_col() +
   theme_minimal() +
@@ -317,7 +319,7 @@ chicago_train %>%
 
 ## Relationship Between Weather and Ridership
 chicago_train %>%
-  ggplot(aes(x=temp, y=clark_lake)) +
+  ggplot(aes(x=temp, y=ridership)) +
   geom_point(alpha=.3) +
   geom_smooth() +
   theme_minimal() +
@@ -340,12 +342,16 @@ folds <- vfold_cv(data = chicago_train, v = 10)
 
 ```{r}
 ## Recipe
-chi_rec <- 
-  recipe(clark_lake ~ ., data = chicago_train) %>%
+chi_rec <-
+  recipe(ridership ~ ., data = chicago_train) %>%
   step_dummy(all_nominal_predictors()) %>% # dummy encode categorical (nominal) predictors
   step_normalize(all_numeric_predictors()) %>%   # center and scale all predictors
   step_nzv(all_numeric_predictors()) %>%   # drop near zero variance for all predictors
-  step_holiday(date)
+  step_holiday(date) %>%
+  step_rm(date)
+
+bake(prep(chi_rec, training = chicago_train), new_data = chicago_train)
+
 
 ```
 
@@ -353,22 +359,94 @@ chi_rec <-
 ### 2. Defining Model Specifications
 
 ```{r}
-## Creating the Tuning rid
-lasso_grid <- grid_regular(penalty(), levels = 10)
+## Linear Regression Model
+lm_mod <- linear_reg() %>%
+  set_engine("lm") %>%
+  set_mode(mode="regression")
 
-## Specifying the model
-lasso_mod <- linear_reg(penalty = tune(), mixture = 1) %>%
-  set_engine("glmnet") %>%
+# create a workflow with the recipe and linear regression model you've created
+lm_wf <- workflow() %>%
+  add_recipe(chi_rec) %>%
+  add_model(lm_mod) 
+
+# fit the model by piping your workflow
+lm_cv <- lm_wf %>%
+  fit_resamples(resamples = folds)
+
+# select the best model based on the "rmse" metric
+lm_best <- lm_cv %>%
+  select_best("rmse")
+
+# use the finalize_workflow() function with your workflow and the best model 
+# to update (or "finalize") your workflow by modifying the line below
+lm_final <- finalize_workflow(
+  lm_wf,
+  parameters = lm_best
+)
+
+lm_final
+```
+
+```{r}
+## KNN Model
+knn_mod <- nearest_neighbor(neighbors = tune()) %>%
+  set_engine(engine = "kknn") %>%
   set_mode(mode = "regression")
 
-## Creating the workflow
-lasso_wf <- workflow() %>%
-  add_recipe(chi_rec) %>%
-  add_model(lasso_mod) 
+# create a workflow with the recipe and linear regression model you've created
+knn_wf <- workflow() %>%
+  add_model(spec = knn_mod) %>%
+  add_recipe(recipe = chi_rec)
+ 
+knn_grid <- grid_regular(neighbors(range = c(1, 15)), levels = 8)
 
-## Hyperparameter Tuning and Cross Validation
-lasso_cv <- lasso_wf %>%
-  tune_grid(resamples = folds, grid = lasso_grid)
+# fit the model by piping your workflow
+knn_fit <- knn_wf %>%
+  tune_grid(resamples = folds,
+            grid = knn_grid,
+            control = control_grid(save_pred = TRUE),
+            metrics = metric_set(rmse))
+
+# select the best model based on the "rmse" metric
+knn_best <- knn_fit %>%
+  select_best("rmse")
+knn_best
+# use the finalize_workflow() function with your workflow and the best model 
+# to update (or "finalize") your workflow by modifying the line below
+knn_final <- finalize_workflow(
+  knn_wf,
+  parameters = knn_best
+)
+
+knn_final
+```
+
+```{r}
+## Random Forest Model
+rf_mod <- rand_forest() %>%
+  set_engine(engine = "randomForest") %>%
+  set_mode(mode = "regression")
+
+# create a workflow with the recipe and linear regression model you've created
+rf_wf <- workflow() %>%
+  add_model(spec = rf_mod) %>%
+  add_recipe(recipe = chi_rec)
+
+# fit the model by piping your workflow
+rf_fit <- rf_wf %>%
+  fit_resamples(resamples = folds)
+
+# select the best model based on the "rmse" metric
+rf_best <- rf_fit %>%
+  select_best("rmse")
+rf_best
+# use the finalize_workflow() function with your workflow and the best model 
+# to update (or "finalize") your workflow by modifying the line below
+rf_final <- finalize_workflow(
+  rf_wf,
+  parameters = knn_best
+)
+
 
 ```
 
