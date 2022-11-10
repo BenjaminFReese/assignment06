@@ -368,7 +368,7 @@ lm_mod <- linear_reg() %>%
   set_mode(mode="regression")
 
 ## KNN Model
-knn_mod <- nearest_neighbor(neighbors = 5) %>%
+knn_mod <- nearest_neighbor(neighbors = tune()) %>%
   set_engine(engine = "kknn") %>%
   set_mode(mode = "regression")
 
@@ -407,9 +407,27 @@ rf_wf <- workflow() %>%
 lm_fit <- lm_wf %>%
   fit_resamples(resamples = folds, metrics = metric_set(mae, rmse))
 
+## Selecting Best LM Model
+lm_best <- lm_fit %>%
+  select_best("rmse")
+
+## Finalizing Workflow of the LM Model
+lm_final <- lm_wf %>%
+  tune::finalize_workflow(lm_best) %>%
+  parsnip::fit(data = chicago_train)
+    
+
 ## Fitting KNN Model
 knn_fit <- knn_wf %>%
-  fit_resamples(resamples = folds, metrics = metric_set(mae, rmse))
+  tune_grid(resamples = folds,
+            grid = knn_grid,
+            control = control_grid(save_pred = TRUE),
+            metrics = metric_set(rmse,mae))
+
+## Finalizing Workflow of the LM Model
+knn_final <- knn_wf %>%
+  tune::finalize_workflow(parameterslm_best) %>%
+  parsnip::fit(data = chicago_train)
 
 ## Fitting Random Forest Model
 rf_fit <- rf_wf %>%
@@ -418,7 +436,7 @@ rf_fit <- rf_wf %>%
 
 ### 5. Calculating and Plotting RMSE and MAE for Each Model's Resamples
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 # All LM Error Metrics
 lm_rmse <- lm_fit %>%
   collect_metrics(summarize=FALSE)
@@ -479,11 +497,38 @@ collect_metrics(rf_fit, summarize = FALSE) %>%
   geom_line() +
   geom_point() +
   scale_y_continuous(limits=c(0,3)) +
-  labs(title = "Calculated RMSE Across the 10 Folds for the KNN Model",
+  labs(title = "Calculated RMSE Across the 10 Folds for the Random Forest Model",
        y = "RMSE_hat") +
   theme_minimal()
 
 ```
 
+
+## 4. Calculating Out-of-Sample Error Prediction
+
+The random forest model has both the lowest averaged mean absolute error and the lowest average root mean square error. The out-of-sample error rate is the RMSE of the tested model 1.984769.
+
+
+```{r}
+## Selecting Best
+rf_best <- rf_fit %>%
+  select_best("rmse")
+
+## Finalizing Workflow for Random Forest Model
+rf_final <- rf_wf %>%
+  tune::finalize_workflow(rf_best) %>%
+  parsnip::fit(data = chicago_train)
+
+## Using the Estimated Model Actual Values in the Training Data
+predictions <- 
+  bind_cols( 
+    chicago_test,
+    predict(object = rf_final, new_data = chicago_test)
+)
+
+rmse(data = predictions, truth = ridership, estimate = .pred)
+
+
+```
 
 
