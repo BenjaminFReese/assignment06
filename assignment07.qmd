@@ -359,108 +359,93 @@ bake(prep(chi_rec, training = chicago_train), new_data = chicago_train)
 
 ### 2. Defining Model Specifications
 
+I specify a linear regression model, a KNN model with hyperparameter tuning, and a random forest model.
 
 ```{r}
-
-## Ridge Model
+## LM Model
 lm_mod <- linear_reg() %>%
   set_engine("lm") %>%
   set_mode(mode="regression")
-
-# create a workflow with the recipe and linear regression model you've created
-lm_wf <- workflow() %>%
-  add_recipe(chi_rec) %>%
-  add_model(lm_mod)
-
-# fit the model by piping your workflow
-lm_cv <- lm_wf %>%
-  fit_resamples(resamples = folds)
-
-# select the best model based on the "rmse" metric
-lm_best <- lm_cv %>%
-  select_best("rmse")
-
-# use the finalize_workflow() function with your workflow and the best model 
-# to update (or "finalize") your workflow by modifying the line below
-lm_final <- finalize_workflow(
-  lm_wf,
-  parameters = lm_best
-)
-
-collect_metrics(lm_cv, summarize = FALSE) %>%
-  filter(.metric == "rmse") %>%
-  ggplot(aes(id, .estimate, group = .estimator)) +
-  geom_line() +
-  geom_point() +
-  scale_y_continuous() +
-  labs(title = "Calculated RMSE Across the 10 Folds",
-       y = "RMSE_hat") +
-  theme_minimal()
-
-```
-
-```{r}
-
 
 ## KNN Model
 knn_mod <- nearest_neighbor(neighbors = tune()) %>%
   set_engine(engine = "kknn") %>%
   set_mode(mode = "regression")
 
-# create a workflow with the recipe and linear regression model you've created
-knn_wf <- workflow() %>%
-  add_model(spec = knn_mod) %>%
-  add_recipe(recipe = chi_rec)
-
+## KNN Tuning Grid
 knn_grid <- grid_regular(neighbors(range = c(1, 15)), levels = 8)
 
-
-# fit the model by piping your workflow
-knn_fit <- knn_wf %>%
-  tune_grid(resamples = folds,
-            grid = knn_grid,
-            control = control_grid(save_pred = TRUE),
-            metrics = metric_set(mae))
-
-# select the best model based on the "rmse" metric
-knn_best <- knn_fit %>%
-  select_best("rmse")
-
-# use the finalize_workflow() function with your workflow and the best model 
-# to update (or "finalize") your workflow by modifying the line below
-knn_final <- finalize_workflow(
-  knn_wf,
-  parameters = knn_best
-)
-
-knn_final
-```
-
-```{r}
 ## Random Forest Model
 rf_mod <- rand_forest() %>%
   set_engine(engine = "randomForest") %>%
   set_mode(mode = "regression")
+```
 
-# create a workflow with the recipe and linear regression model you've created
+### 3. Workflows For Each Model
+
+```{r}
+## LM Workflow
+lm_wf <- workflow() %>%
+  add_recipe(chi_rec) %>%
+  add_model(lm_mod)
+
+## KNN Workflow
+knn_wf <- workflow() %>%
+  add_model(spec = knn_mod) %>%
+  add_recipe(recipe = chi_rec)
+
+## Random Forest Workflow
 rf_wf <- workflow() %>%
   add_model(spec = rf_mod) %>%
   add_recipe(recipe = chi_rec)
+```
 
-# fit the model by piping your workflow
+### 4. Fitting Models with v-fold Cross Validation
+
+```{r}
+## Fitting LM Model
+lm_fit <- lm_wf %>%
+  fit_resamples(resamples = folds, metrics = metric_set(mae, rmse))
+
+## Fitting KNN Model
+knn_fit <- knn_wf %>%
+  tune_grid(resamples = folds, grid = knn_grid,
+            control = control_grid(save_pred = TRUE),
+            metrics = metric_set(mae, rmse))
+
+## Fitting Random Forest Model
 rf_fit <- rf_wf %>%
-  fit_resamples(resamples = folds)
+  fit_resamples(resamples = folds, metrics = metric_set(mae, rmse))
+```
 
-# select the best model based on the "rmse" metric
-rf_best <- rf_fit %>%
-  select_best("rmse")
-rf_best
-# use the finalize_workflow() function with your workflow and the best model 
-# to update (or "finalize") your workflow by modifying the line below
-rf_final <- finalize_workflow(
-  rf_wf,
-  parameters = knn_best
-)
+### 5. Calculating and Plotting RMSE and MAE for Each Model's Resamples
+
+```{r}
+# All LM Error Metrics
+lm_fit %>%
+  collect_metrics(summarize=FALSE)
+
+## Averaged LM Error Metrics
+lm_fit %>%
+  collect_metrics(summarize=TRUE)
+
+# All KNN Error Metrics
+knn_fit %>%
+  collect_metrics(summarize=FALSE)
+
+## Averaged KNN Error Metrics
+knn_fit %>%
+  collect_metrics(summarize=TRUE)
+
+## All Random Forest Error Metrics
+rf_fit %>%
+  collect_metrics(summarize=FALSE)
+
+## Averaged Random Forest Error Metrics
+rf_fit %>%
+  collect_metrics(summarize=TRUE)
 
 ```
+
+
 
