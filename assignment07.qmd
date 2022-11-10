@@ -368,7 +368,7 @@ lm_mod <- linear_reg() %>%
   set_mode(mode="regression")
 
 ## KNN Model
-knn_mod <- nearest_neighbor(neighbors = tune()) %>%
+knn_mod <- nearest_neighbor(neighbors = 5) %>%
   set_engine(engine = "kknn") %>%
   set_mode(mode = "regression")
 
@@ -409,9 +409,7 @@ lm_fit <- lm_wf %>%
 
 ## Fitting KNN Model
 knn_fit <- knn_wf %>%
-  tune_grid(resamples = folds, grid = knn_grid,
-            control = control_grid(save_pred = TRUE),
-            metrics = metric_set(mae, rmse))
+  fit_resamples(resamples = folds, metrics = metric_set(mae, rmse))
 
 ## Fitting Random Forest Model
 rf_fit <- rf_wf %>%
@@ -422,7 +420,7 @@ rf_fit <- rf_wf %>%
 
 ```{r}
 # All LM Error Metrics
-lm_fit %>%
+lm_rmse <- lm_fit %>%
   collect_metrics(summarize=FALSE)
 
 ## Averaged LM Error Metrics
@@ -430,7 +428,7 @@ lm_fit %>%
   collect_metrics(summarize=TRUE)
 
 # All KNN Error Metrics
-knn_fit %>%
+knn_rmse <- knn_fit %>%
   collect_metrics(summarize=FALSE)
 
 ## Averaged KNN Error Metrics
@@ -438,12 +436,52 @@ knn_fit %>%
   collect_metrics(summarize=TRUE)
 
 ## All Random Forest Error Metrics
-rf_fit %>%
+rf_mse <- rf_fit %>%
   collect_metrics(summarize=FALSE)
 
 ## Averaged Random Forest Error Metrics
 rf_fit %>%
   collect_metrics(summarize=TRUE)
+
+bind_rows(
+  `lm` = collect_metrics(lm_fit, metric = "rmse", summarize=TRUE),
+  `knn` = collect_metrics(knn_fit, metric = "rmse", summarize=TRUE),
+  `rf` = collect_metrics(rf_fit, metric = "rmse", summarize=TRUE),
+  .id = "model"
+) 
+
+## LM RMSE Plot
+collect_metrics(lm_fit, summarize = FALSE) %>%
+  filter(.metric == "rmse") %>%
+  ggplot(aes(id, .estimate, group = .estimator)) +
+  geom_line() +
+  geom_point() +
+  scale_y_continuous(limits=c(0,3)) +
+  labs(title = "Calculated RMSE Across the 10 Folds for the Linear Regression Model",
+       y = "RMSE_hat") +
+  theme_minimal()
+
+## KNN RMSE Plot
+collect_metrics(knn_fit, summarize = FALSE) %>%
+  filter(.metric == "rmse") %>%
+  ggplot(aes(id, .estimate, group = .estimator)) +
+  geom_line() +
+  geom_point() +
+  scale_y_continuous(limits=c(0,3)) +
+  labs(title = "Calculated RMSE Across the 10 Folds for the KNN Model",
+       y = "RMSE_hat") +
+  theme_minimal()
+
+## Random Forest RMSE Plot
+collect_metrics(rf_fit, summarize = FALSE) %>%
+  filter(.metric == "rmse") %>%
+  ggplot(aes(id, .estimate, group = .estimator)) +
+  geom_line() +
+  geom_point() +
+  scale_y_continuous(limits=c(0,3)) +
+  labs(title = "Calculated RMSE Across the 10 Folds for the KNN Model",
+       y = "RMSE_hat") +
+  theme_minimal()
 
 ```
 
