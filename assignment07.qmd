@@ -1,7 +1,7 @@
 ---
 title: "Assignment07: Machine Learning"
 author: "Benjamin Reese"
-format: pdf
+format: html
 self-contained: true
 ---
 
@@ -490,11 +490,10 @@ collect_metrics(rf_fit, summarize = FALSE) %>%
 
 ```
 
-The average RMSE for the linear regression model is approximately 2.1, the *KNN* model with hyperparameter tuning for the number of neighbors is approximately 2.5, and the random forest model has a RMSE of approximately 1.9.
 
 ## 4. Calculating Out-of-Sample Error
 
-The random forest model has both the lowest averaged mean absolute error and the lowest average root mean square error. The out-of-sample error rate is the RMSE of the tested model is approximately 1.9.
+The random forest model has both the lowest averaged mean absolute error and the lowest average root mean square error.
 
 
 ```{r outofsampleerror, warning=FALSE, message=FALSE}
