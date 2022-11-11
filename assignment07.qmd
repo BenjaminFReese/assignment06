@@ -555,9 +555,10 @@ rmse(data = predictions, truth = ridership, estimate = .pred)
 
 ## 6.
 
-The model overall is somewhat accurate, predicting higher ridership values when there is actually higher ridership and low ridership when there is lower ridership. The size of our error metric, root mean square error, however may be troublesome for Chicago city officials. As the ridership variable is measured in thousands of riders, the root mean square error is nearly 2 thousand riders. When some days such as Saturdays and Sundays only have 6 thousand riders, then a policy choice based on having $\frac{1}{3}$ fewer or greater riders may become an issue.
+The model overall is somewhat accurate, predicting higher ridership values when there is actually higher ridership and low ridership when there is lower ridership. The size of our error metric, root mean square error, however may be troublesome for Chicago city officials. As the ridership variable is measured in thousands of riders, the root mean square error is nearly 2 thousand riders. When some days such as Saturdays and Sundays only have 6 thousand riders, then a policy choice based on having $\frac{1}{3}$ fewer or greater riders may become an issue. It is better, however, then no model.
 
 The model is both globally and locally interpretable, meaning we can gain both broad, or "global" insights about ridership, and we can also easily understand why specific points are predicted as they are. The variables included in the model are straightforward and the connection between outcome and predictors is easily made. For example, the day of the week is a strong predictor because we expect people to use the L train when going to work. Variables like the day of the week, especially Mondays, and the ridership levels at other stations are the most important predictors. This can be seen in the importance plot below. The most important predictors are Mondays and ridership in other stations.
+
 
 ```{r, warning=FALSE, message=FALSE}
 ## Saving Actual Values in Implementation Data
