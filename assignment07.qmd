@@ -9,7 +9,7 @@ self-contained: true
 
 ## Runing Code to Create Dataset
 
-```{r, warning=FALSE, message=FALSE}
+```{r setupchunk, warning=FALSE, message=FALSE}
 library(tidyverse)
 library(lubridate)
 library(tidymodels)
@@ -71,7 +71,7 @@ In this exercise, I split `sampled_df`, the restaurant data, into training and t
 
 ### a. Setting the Seed and Splitting the Dataset
 
-```{r}
+```{r seedsetting, warning=FALSE, message=FALSE}
 ## Setting Seed
 set.seed(20201020)
 
@@ -85,7 +85,7 @@ restaurant_test <- testing(split)
 
 ### b. Creating the Recipe
 
-```{r}
+```{r restaurantrecipe, warning=FALSE, message=FALSE}
 ## Creating the Recipe
 restaurant_rec <- 
   recipe(grade ~ ., data = restaurant_train) %>%
@@ -94,7 +94,7 @@ restaurant_rec <-
 
 ### c. Code for the Decision Tree
 
-```{r}
+```{r decisiontree, warning=FALSE, message=FALSE}
 ## Creating the CART Model
 cart_mod <-
   decision_tree() %>%
@@ -117,7 +117,7 @@ The code below evaluates the model by generating a confusion matrix and calculat
 
 ### Creating predictions tibble
 
-```{r}
+```{r gradepredictions, warning=FALSE, message=FALSE}
 ## Selecting the Predictions
 predictions <- bind_cols(
   restaurant_test,
@@ -132,14 +132,14 @@ select(predictions, grade, starts_with(".pred"))
 
 ### a. Confusion Matrix
 
-```{r}
+```{r confusion, warning=FALSE, message=FALSE}
 ## Confusion matrix
 conf_mat(data = predictions, truth = grade, estimate = .pred_class)
 ```
 
 ### b. Calculating Precision & Recall
 
-```{r}
+```{r precisionrecall, warning=FALSE, message=FALSE}
 ## Precision
 precision(data = predictions, truth = grade, estimate = .pred_class)
 
@@ -158,7 +158,7 @@ Using a *KNN*, or K-nearest neighbors, algorithm instead of the decision tree al
 
 ## 4. Plot for Variable Importance
 
-```{r}
+```{r gradeimportance, warning=FALSE, message=FALSE}
 library(vip)
 
 cart_fit %>%
@@ -179,7 +179,7 @@ Restaurants that receive low ratings will want to correct their violations and t
 
 ## Running Code From Assignment
 
-```{r}
+```{r copyingcode, warning=FALSE, message=FALSE}
 Chicago_modeling <- Chicago %>%
 slice(1:5678)
 
@@ -190,7 +190,7 @@ select(-ridership)
 
 ## 1. Converting Date into Useable Variable
 
-```{r}
+```{r convertingdate, warning=FALSE, message=FALSE}
 ## Loading Lubridate
 library(lubridate)
 
@@ -208,7 +208,7 @@ Chicago_modeling <- Chicago_modeling %>%
 
 ### a. Setting the Seed and Splitting Modeling Data into Training & Testing
 
-```{r}
+```{r settingseed2, warning=FALSE, message=FALSE}
 ## Setting seed
 set.seed(20211101)
 
@@ -222,7 +222,7 @@ chicago_test <- testing(x = split)
 
 ### b. Exploratory Data Analysis
 
-```{r, warning=FALSE, message=FALSE}
+```{r eda, warning=FALSE, message=FALSE}
 ## Counting Daily Ridership
 chicago_train %>%
   group_by(weekday) %>%
@@ -334,7 +334,7 @@ chicago_train %>%
 
 ### c. Setting up v-fold cross validation
 
-```{r}
+```{r folds, warning=FALSE, message=FALSE}
 ## Setting up folds
 folds <- vfold_cv(data = chicago_train, v = 10, repeats = 1)
 folds
@@ -344,13 +344,13 @@ folds
 
 ### 1. Creating Recipe
 
-```{r}
+```{r recipebake, warning=FALSE, message=FALSE}
 ## Recipe
 chi_rec <-
   recipe(ridership ~ ., data = chicago_train) %>%
-  step_dummy(all_nominal_predictors()) %>% # dummy encode categorical (nominal) predictors
-  step_normalize(all_numeric_predictors()) %>%   # center and scale all predictors
-  step_nzv(all_predictors()) %>%
+  step_dummy(all_nominal_predictors()) %>% ## Dummy encode categorical predictors
+  step_normalize(all_numeric_predictors()) %>%   ## Center and scale all predictors
+  step_nzv(all_predictors()) %>% ## Remove non-variance variables
   step_holiday(date) %>%
   step_rm(date)
 
@@ -365,7 +365,7 @@ bake(prep(chi_rec, training = chicago_train), new_data = chicago_train)
 
 I specify a linear regression model, a KNN model with hyperparameter tuning, and a random forest model.
 
-```{r}
+```{r models, warning=FALSE, message=FALSE}
 ## LM Model
 lm_mod <- linear_reg() %>%
   set_engine("lm") %>%
@@ -376,8 +376,6 @@ knn_mod <- nearest_neighbor(neighbors = tune()) %>%
   set_engine(engine = "kknn") %>%
   set_mode(mode = "regression")
 
-## KNN Tuning Grid
-knn_grid <- grid_regular(neighbors(range = c(1, 15)), levels = 8)
 
 ## Random Forest Model
 rf_mod <- rand_forest() %>%
@@ -387,11 +385,14 @@ rf_mod <- rand_forest() %>%
 
 ### 3. Workflows For Each Model
 
-```{r}
+```{r workflows, warning=FALSE, message=FALSE}
 ## LM Workflow
 lm_wf <- workflow() %>%
   add_recipe(chi_rec) %>%
   add_model(lm_mod)
+
+## KNN Tuning Grid
+knn_grid <- grid_regular(neighbors(range = c(1, 15)), levels = 8)
 
 ## KNN Workflow
 knn_wf <- workflow() %>%
@@ -406,7 +407,7 @@ rf_wf <- workflow() %>%
 
 ### 4. Fitting Models with v-fold Cross Validation
 
-```{r}
+```{r fittings, warning=FALSE, message=FALSE}
 ## Fitting LM Model
 lm_fit <- lm_wf %>%
   fit_resamples(resamples = folds, metrics = metric_set(mae, rmse))
@@ -414,11 +415,6 @@ lm_fit <- lm_wf %>%
 ## Selecting Best LM Model
 lm_best <- lm_fit %>%
   select_best("rmse")
-
-## Finalizing Workflow of the LM Model
-lm_final <- lm_wf %>%
-  tune::finalize_workflow(lm_best) %>%
-  parsnip::fit(data = chicago_train)
     
 
 ## Fitting KNN Model
@@ -428,11 +424,6 @@ knn_fit <- knn_wf %>%
             control = control_grid(save_pred = TRUE),
             metrics = metric_set(rmse,mae))
 
-## Finalizing Workflow of the LM Model
-knn_final <- knn_wf %>%
-  tune::finalize_workflow(parameterslm_best) %>%
-  parsnip::fit(data = chicago_train)
-
 ## Fitting Random Forest Model
 rf_fit <- rf_wf %>%
   fit_resamples(resamples = folds, metrics = metric_set(mae, rmse))
@@ -440,7 +431,7 @@ rf_fit <- rf_wf %>%
 
 ### 5. Calculating and Plotting RMSE and MAE for Each Model's Resamples
 
-```{r, warning=FALSE, message=FALSE}
+```{r plotting, warning=FALSE, message=FALSE}
 # All LM Error Metrics
 lm_rmse <- lm_fit %>%
   collect_metrics(summarize=FALSE)
@@ -451,7 +442,7 @@ lm_fit %>%
 
 # All KNN Error Metrics
 knn_rmse <- knn_fit %>%
-  collect_metrics(summarize=FALSE)
+  collect_metrics()
 
 ## Averaged KNN Error Metrics
 knn_fit %>%
@@ -464,13 +455,6 @@ rf_mse <- rf_fit %>%
 ## Averaged Random Forest Error Metrics
 rf_fit %>%
   collect_metrics(summarize=TRUE)
-
-bind_rows(
-  `lm` = collect_metrics(lm_fit, metric = "rmse", summarize=TRUE),
-  `knn` = collect_metrics(knn_fit, metric = "rmse", summarize=TRUE),
-  `rf` = collect_metrics(rf_fit, metric = "rmse", summarize=TRUE),
-  .id = "model"
-) 
 
 ## LM RMSE Plot
 collect_metrics(lm_fit, summarize = FALSE) %>%
@@ -513,7 +497,7 @@ collect_metrics(rf_fit, summarize = FALSE) %>%
 The random forest model has both the lowest averaged mean absolute error and the lowest average root mean square error. The out-of-sample error rate is the RMSE of the tested model 1.984769.
 
 
-```{r}
+```{r outofsampleerror, warning=FALSE, message=FALSE}
 ## Selecting Best
 rf_best <- rf_fit %>%
   select_best("rmse")
@@ -537,7 +521,7 @@ rmse(data = predictions, truth = ridership, estimate = .pred)
 
 ## 5. Implementing the Final Model
 
-```{r}
+```{r implementingmodel, warning=FALSE, message=FALSE}
 ## Cleaning and Adding the weekday variables to the implementation data
 Chicago_implementation <- Chicago_implementation %>%
   mutate(weekday = wday(date, label = TRUE), 
@@ -560,7 +544,7 @@ The model overall is somewhat accurate, predicting higher ridership values when 
 The model is both globally and locally interpretable, meaning we can gain both broad, or "global" insights about ridership, and we can also easily understand why specific points are predicted as they are. The variables included in the model are straightforward and the connection between outcome and predictors is easily made. For example, the day of the week is a strong predictor because we expect people to use the L train when going to work. Variables like the day of the week, especially Mondays, and the ridership levels at other stations are the most important predictors. This can be seen in the importance plot below. The most important predictors are Mondays and ridership in other stations.
 
 
-```{r, warning=FALSE, message=FALSE}
+```{r evaluatingmodel, warning=FALSE, message=FALSE}
 ## Saving Actual Values in Implementation Data
 actual_values <- Chicago %>%
 slice(5679:5698) %>%
