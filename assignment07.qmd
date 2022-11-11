@@ -238,7 +238,8 @@ chicago_train %>%
   theme_minimal() +
   labs(title = "Daily Ridership for Chicago's Clark-Lake Station", 
        x = "Weekday", y = "Average Daily Ridership", fill="Weekday",
-       subtitle = "Ridership Peaks During Working Week, Drops off During Weekend")
+       subtitle = "Ridership Peaks During Working Week, Drops off During Weekend", 
+       caption = "Data Source: Chicago Transity Authority")
 
 
 ## Ridership During Games Plot
@@ -261,7 +262,8 @@ chicago_train %>%
   geom_col() +
   theme_minimal() +
   labs(title = "Gametime Ridership for Chicago's Clark-Lake Station", 
-       x = "Team", y = "Average Ridership", fill="Team")
+       x = "Team", y = "Average Ridership", fill="Team", 
+       caption = "Data Source: Chicago Transity Authority")
 
 ## Ridership During Bears Games
 chicago_train %>%
@@ -314,7 +316,8 @@ chicago_train %>%
   theme_minimal() +
   labs(title = "Inclement Weather Ridership for Chicago's Clark-Lake Station", 
        x = "Weather", y = "Average Ridership",
-       subtitle = "Weather is Not A Strong Predictor of Ridership") +
+       subtitle = "Weather is Not A Strong Predictor of Ridership",
+       caption = "Data Source: Chicago Transity Authority") +
   theme(legend.position="none")
 
 ## Relationship Between Weather and Ridership
@@ -324,7 +327,7 @@ chicago_train %>%
   geom_smooth() +
   theme_minimal() +
   labs(title = "Relationship Between Temperature and Ridership at Clark-Lake Station", 
-       x = "Temperature (F)", y = "Ridership")
+       x = "Temperature (F)", y = "Ridership", caption = "Data Source: Chicago Transity Authority")
 
 ```
 
@@ -351,6 +354,7 @@ chi_rec <-
   step_holiday(date) %>%
   step_rm(date)
 
+## Baking Recipe
 bake(prep(chi_rec, training = chicago_train), new_data = chicago_train)
 
 
@@ -549,4 +553,37 @@ predict(object = rf_final, new_data = Chicago_implementation)
 rmse(data = predictions, truth = ridership, estimate = .pred)
 ```
 
+## 6.
+
+The model overall is somewhat accurate, predicting higher ridership values when there is actually higher ridership and low ridership when there is lower ridership. The size of our error metric, root mean square error, however may be troublesome for Chicago city officials. As the ridership variable is measured in thousands of riders, the root mean square error is nearly 2 thousand riders. When some days such as Saturdays and Sundays only have 6 thousand riders, then a policy choice based on having $\frac{1}{3}$ fewer or greater riders may become an issue.
+
+The model is both globally and locally interpretable, meaning we can gain both broad, or "global" insights about ridership, and we can also easily understand why specific points are predicted as they are. The variables included in the model are straightforward and the connection between outcome and predictors is easily made. For example, the day of the week is a strong predictor because we expect people to use the L train when going to work. Variables like the day of the week, especially Mondays, and the ridership levels at other stations are the most important predictors. This can be seen in the importance plot below. The most important predictors are Mondays and ridership in other stations.
+
+```{r, warning=FALSE, message=FALSE}
+## Saving Actual Values in Implementation Data
+actual_values <- Chicago %>%
+slice(5679:5698) %>%
+select(ridership)
+
+## Saving the Predicted Values
+pred_values <- predict(object = rf_final, new_data = Chicago_implementation)
+
+## Combining Columns
+act_pred_values <- bind_cols(actual_values, pred_values)
+
+## Visualizing Model Accuracy
+act_pred_values %>%
+  ggplot(aes(x=ridership, y=.pred)) +
+  geom_point() + 
+  geom_smooth(method = "lm") +
+  labs(title = "Actual Ridership vs Model Predicted Ridership",
+       x = "Actual Ridership", y = "Random Forest Model Predicted Ridership",
+       caption = "Data Source: Chicago Transit Authority")
+
+## Showing the Important Variables
+rf_final %>%
+  extract_fit_parsnip() %>%
+  vip(num_features = 10)
+
+```
 
