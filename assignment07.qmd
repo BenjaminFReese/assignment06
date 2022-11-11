@@ -1,5 +1,5 @@
 ---
-title: "Assignment07"
+title: "Assignment07: Machine Learning"
 author: "Benjamin Reese"
 format: pdf
 self-contained: true
@@ -9,7 +9,8 @@ self-contained: true
 
 ## Runing Code to Create Dataset
 
-```{r setupchunk, warning=FALSE, message=FALSE}
+```{r datasetupchunk, warning=FALSE, message=FALSE}
+## Loading Packages
 library(tidyverse)
 library(lubridate)
 library(tidymodels)
@@ -150,11 +151,11 @@ recall(data = predictions, truth = grade, estimate = .pred_class)
 
 ### c.
 
-The model's precision, or how often the classifier is correct when it predicts an event, is very high, .998. This high level of precision means that the model is very good at predicting an event when there is an event. In this case, our models is highly precise when predicting a restaurant has an A rating when it actually has an A rating. The model's sensitivity, or how often the classifier is correct when there is an event is not as high as its precision, meaning that there are many restaurants that have an A rating, but the model is predicting that they do not have an A rating. Overall, the quality of the model depends on its intended use and the relative costs associated with its use. If the model predicts an A rating, then we can be pretty sure the result is not a false positive, but we will see many false negatives. 
+The model's precision, or how often the classifier is correct when it predicts an event, is very high, .998. This high level of precision means that the model is very good at predicting an event when there is an event. In this case, our model is highly precise when predicting a restaurant has an A rating when it actually has an A rating. The model's sensitivity, or how often the classifier is correct when there is an event is not as high as its precision. Overall, the quality of the model depends on its intended use and the relative costs associated with its use. If the model predicts an A rating, then we can be pretty sure the result is not a false positive, but we will see many false negatives. 
 
 ## 3. 
 
-Using a *KNN*, or K-nearest neighbors, algorithm instead of the decision tree algorithm may improve the quality of the model. Instead of dividing the data into two or more sets as the decision tree model does, a *KNN* algorithm stores all available cases and classifies new cases by taking a majority vote of its k neighbors. This majority vote may prove more accurate than the binary dividing of the decision tree model.
+Using a *KNN*, or K-nearest neighbors, algorithm instead of the decision tree algorithm may improve the quality of the model. Instead of probabilistically dividing the data into two sets, based on predictors, as the decision tree model does, a *KNN* algorithm stores all available cases and classifies new cases by taking a majority vote of its *k* closest neighbors. This majority vote may prove more accurate than the binary dividing of the decision tree model.
 
 ## 4. Plot for Variable Importance
 
@@ -167,9 +168,9 @@ cart_fit %>%
 
 ```
 
-Variable, or feature, importance in decision tree models is calculated by finding the decrease in the Gini impurity weighted by the probability of reaching that node. Node probability is the proportion of samples that reach a node out of the total samples. The most important variables in a decision tree model are the variables associated with the most Gini impurity being eliminated at each branch of the decision tree. In other words, the variable with the highest value of the decrease in impurity, weighted by the probability of the sample making it to a node, is the most important feature.
+Variable, or feature, importance in decision tree models is calculated by finding the decrease in the Gini impurity - the quality of the split - weighted by the probability of reaching a node. Node probability is the proportion of samples that reach a node out of the total samples. The most important variables in a decision tree model are the variables associated with the most Gini impurity being eliminated - highest quality split - at each branch of the decision tree. In other words, the variable with the highest value of the decrease in impurity, weighted by the probability of the sample making it to a node, is the most important feature.
 
-In the model above, the most important feature is the inspection type. Location, defined by the Census tract the restaurant is located in was the second most important variable. These two are followed by a series of variables relation to the types of violations associated with a restaurant, the type of cuisine, and the date of the inspection. The most important feature, inspection type, is a categorical variable largely divided between initial and re-inspections. It is unsurprising that the most important predictor of a rating is the type of inspection because the rating is a direct result of an inspection, and the exact circumstances of an inspection surely dictate the ensuing ratings. It is also possible that restaurants fix violations and receive A ratings on subsequent visits and re-inspections, meaning re-inspection will predict A ratings.
+In the model above, the most important feature is the inspection type. Location, defined by the Census tract the restaurant is located in is the second most important variable. These two are followed by a series of variables related to the types of violations associated with a restaurant, the type of cuisine, and the date of the inspection. The most important feature, inspection type, is a categorical variable largely divided between initial and re-inspections. It is unsurprising that the most important predictor of a rating is the type of inspection because the rating is a direct result of an inspection, and the exact circumstances of an inspection surely dictate the ensuing ratings. It is also possible that restaurants fix violations and receive A ratings on subsequent visits and re-inspections, meaning re-inspection will predict A ratings.
 
 ## 5. 
 
@@ -200,7 +201,7 @@ Chicago_modeling <- Chicago_modeling %>%
          month = month(date, label = TRUE),
          yearday = yday(date)
   ) %>%
-  janitor::clean_names()
+  janitor::clean_names() ## cleaning names
 
 ```
 
@@ -331,13 +332,13 @@ chicago_train %>%
 
 ```
 
+My exploratory data analysis finds that the most important predictor of ridership is the day of the week with weekdays seeing a larger amount of ridership than weekends. Weather and temperature does not appear to have a strong effect, and neither does the occurrence of a professional sports game.
 
 ### c. Setting up v-fold cross validation
 
 ```{r folds, warning=FALSE, message=FALSE}
 ## Setting up folds
 folds <- vfold_cv(data = chicago_train, v = 10, repeats = 1)
-folds
 ```
 
 ## 3. Testing Different Approaches
@@ -346,7 +347,7 @@ folds
 
 ```{r recipebake, warning=FALSE, message=FALSE}
 ## Recipe
-chi_rec <-
+chicago_rec <-
   recipe(ridership ~ ., data = chicago_train) %>%
   step_dummy(all_nominal_predictors()) %>% ## Dummy encode categorical predictors
   step_normalize(all_numeric_predictors()) %>%   ## Center and scale all predictors
@@ -355,8 +356,7 @@ chi_rec <-
   step_rm(date)
 
 ## Baking Recipe
-bake(prep(chi_rec, training = chicago_train), new_data = chicago_train)
-
+bake(prep(chicago_rec, training = chicago_train), new_data = chicago_train)
 
 ```
 
@@ -388,7 +388,7 @@ rf_mod <- rand_forest() %>%
 ```{r workflows, warning=FALSE, message=FALSE}
 ## LM Workflow
 lm_wf <- workflow() %>%
-  add_recipe(chi_rec) %>%
+  add_recipe(chicago_rec) %>%
   add_model(lm_mod)
 
 ## KNN Tuning Grid
@@ -397,12 +397,12 @@ knn_grid <- grid_regular(neighbors(range = c(1, 15)), levels = 8)
 ## KNN Workflow
 knn_wf <- workflow() %>%
   add_model(spec = knn_mod) %>%
-  add_recipe(recipe = chi_rec)
+  add_recipe(recipe = chicago_rec)
 
 ## Random Forest Workflow
 rf_wf <- workflow() %>%
   add_model(spec = rf_mod) %>%
-  add_recipe(recipe = chi_rec)
+  add_recipe(recipe = chicago_rec)
 ```
 
 ### 4. Fitting Models with v-fold Cross Validation
@@ -412,17 +412,12 @@ rf_wf <- workflow() %>%
 lm_fit <- lm_wf %>%
   fit_resamples(resamples = folds, metrics = metric_set(mae, rmse))
 
-## Selecting Best LM Model
-lm_best <- lm_fit %>%
-  select_best("rmse")
-    
-
 ## Fitting KNN Model
 knn_fit <- knn_wf %>%
   tune_grid(resamples = folds,
             grid = knn_grid,
             control = control_grid(save_pred = TRUE),
-            metrics = metric_set(rmse,mae))
+            metrics = metric_set(rmse, mae))
 
 ## Fitting Random Forest Model
 rf_fit <- rf_wf %>%
@@ -433,28 +428,32 @@ rf_fit <- rf_wf %>%
 
 ```{r plotting, warning=FALSE, message=FALSE}
 # All LM Error Metrics
-lm_rmse <- lm_fit %>%
+lm_fit %>%
   collect_metrics(summarize=FALSE)
 
 ## Averaged LM Error Metrics
 lm_fit %>%
-  collect_metrics(summarize=TRUE)
+  collect_metrics(summarize=TRUE) %>%
+  filter(.metric == "rmse")
 
 # All KNN Error Metrics
-knn_rmse <- knn_fit %>%
-  collect_metrics()
+knn_fit %>%
+  collect_metrics(summarize = FALSE)
 
 ## Averaged KNN Error Metrics
 knn_fit %>%
-  collect_metrics(summarize=TRUE)
+  collect_metrics(summarize=TRUE) %>%
+  filter(.metric == "rmse") %>%
+  summarize(avg_rmse = mean(mean))
 
 ## All Random Forest Error Metrics
-rf_mse <- rf_fit %>%
+rf_fit %>%
   collect_metrics(summarize=FALSE)
 
 ## Averaged Random Forest Error Metrics
 rf_fit %>%
-  collect_metrics(summarize=TRUE)
+  collect_metrics(summarize=TRUE) %>%
+  filter(.metric == "rmse") 
 
 ## LM RMSE Plot
 collect_metrics(lm_fit, summarize = FALSE) %>%
@@ -471,8 +470,8 @@ collect_metrics(lm_fit, summarize = FALSE) %>%
 collect_metrics(knn_fit, summarize = FALSE) %>%
   filter(.metric == "rmse") %>%
   ggplot(aes(id, .estimate, group = .estimator)) +
-  geom_line() +
   geom_point() +
+  geom_smooth(col="black", se=F) +
   scale_y_continuous(limits=c(0,3)) +
   labs(title = "Calculated RMSE Across the 10 Folds for the KNN Model",
        y = "RMSE_hat") +
@@ -491,10 +490,11 @@ collect_metrics(rf_fit, summarize = FALSE) %>%
 
 ```
 
+The average RMSE for the linear regression model is approximately 2.1, the *KNN* model with hyperparameter tuning for the number of neighbors is approximately 2.5, and the random forest model has a RMSE of approximately 1.9.
 
 ## 4. Calculating Out-of-Sample Error
 
-The random forest model has both the lowest averaged mean absolute error and the lowest average root mean square error. The out-of-sample error rate is the RMSE of the tested model 1.984769.
+The random forest model has both the lowest averaged mean absolute error and the lowest average root mean square error. The out-of-sample error rate is the RMSE of the tested model is approximately 1.9.
 
 
 ```{r outofsampleerror, warning=FALSE, message=FALSE}
@@ -541,7 +541,7 @@ rmse(data = predictions, truth = ridership, estimate = .pred)
 
 The model overall is somewhat accurate, predicting higher ridership values when there is actually higher ridership and low ridership when there is lower ridership. The size of our error metric, root mean square error, however may be troublesome for Chicago city officials. As the ridership variable is measured in thousands of riders, the root mean square error is nearly 2 thousand riders. When some days such as Saturdays and Sundays only have 6 thousand riders, then a policy choice based on having $\frac{1}{3}$ fewer or greater riders may become an issue. It is better, however, then no model.
 
-The model is both globally and locally interpretable, meaning we can gain both broad, or "global" insights about ridership, and we can also easily understand why specific points are predicted as they are. The variables included in the model are straightforward and the connection between outcome and predictors is easily made. For example, the day of the week is a strong predictor because we expect people to use the L train when going to work. Variables like the day of the week, especially Mondays, and the ridership levels at other stations are the most important predictors. This can be seen in the importance plot below. The most important predictors are Mondays and ridership in other stations.
+The model is both globally and locally interpretable, meaning we can gain both broad, or "global", insights about ridership, and we can also easily understand why specific points are predicted as they are. The variables included in the model are straightforward and the connection between outcome and predictors is easily made. For example, the day of the week is a strong predictor because we expect people to use the L train when going to work. Variables like the day of the week, especially Mondays, and the ridership levels at other stations are the most important predictors. This can be seen in the importance plot below. 
 
 
 ```{r evaluatingmodel, warning=FALSE, message=FALSE}
@@ -560,7 +560,7 @@ act_pred_values <- bind_cols(actual_values, pred_values)
 act_pred_values %>%
   ggplot(aes(x=ridership, y=.pred)) +
   geom_point() + 
-  geom_smooth(method = "lm") +
+  geom_smooth(method = "lm", se=F, col="black") +
   labs(title = "Actual Ridership vs Model Predicted Ridership",
        x = "Actual Ridership", y = "Random Forest Model Predicted Ridership",
        caption = "Data Source: Chicago Transit Authority")
